@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="1250" viewBox="0 0 980 1250" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="980" height="1250" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="490" y="48" text-anchor="middle" font-size="26" font-weight="700" fill="#0F172A">Which Claude model should I use?</text>
+  <text x="490" y="74" text-anchor="middle" font-size="14" fill="#64748B">Goal: the cheapest model + effort that still gets the job done</text>
+
+  <!-- Start -->
+  <rect x="180" y="100" width="240" height="46" rx="23" fill="#0F172A"/>
+  <text x="300" y="129" text-anchor="middle" font-size="15" font-weight="600" fill="#FFFFFF">New task</text>
+  <line x1="300" y1="146" x2="300" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Q1 -->
+  <rect x="140" y="184" width="320" height="80" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="300" y="214" text-anchor="middle" font-size="14" font-weight="600" fill="#1E293B">Trivial or repetitive?</text>
+  <text x="300" y="234" text-anchor="middle" font-size="12" fill="#475569">classify · extract · format · simple Q&amp;A</text>
+  <text x="300" y="251" text-anchor="middle" font-size="12" fill="#475569">high-volume pipelines</text>
+  <!-- Yes arrow -->
+  <line x1="460" y1="224" x2="530" y2="224" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="495" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#16A34A">YES</text>
+  <!-- Haiku result -->
+  <rect x="535" y="184" width="390" height="80" rx="10" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
+  <text x="730" y="211" text-anchor="middle" font-size="15" font-weight="700" fill="#065F46">Haiku 4.5 — $1 / $5 per 1M tokens</text>
+  <text x="730" y="232" text-anchor="middle" font-size="12" fill="#065F46">effort: low · thinking: off or default</text>
+  <text x="730" y="251" text-anchor="middle" font-size="12" fill="#065F46">use Batch API (−50%) for bulk jobs</text>
+  <!-- No arrow -->
+  <line x1="300" y1="264" x2="300" y2="304" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="315" y="290" font-size="12" font-weight="700" fill="#DC2626">NO</text>
+
+  <!-- Q2 -->
+  <rect x="140" y="308" width="320" height="80" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="300" y="338" text-anchor="middle" font-size="14" font-weight="600" fill="#1E293B">Standard dev work?</text>
+  <text x="300" y="358" text-anchor="middle" font-size="12" fill="#475569">features · unit tests · docs · CRUD</text>
+  <text x="300" y="375" text-anchor="middle" font-size="12" fill="#475569">small refactors · bug fixes</text>
+  <line x1="460" y1="348" x2="530" y2="348" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="495" y="338" text-anchor="middle" font-size="12" font-weight="700" fill="#16A34A">YES</text>
+  <!-- Sonnet result -->
+  <rect x="535" y="308" width="390" height="80" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+  <text x="730" y="335" text-anchor="middle" font-size="15" font-weight="700" fill="#1E40AF">Sonnet 5 — $3 / $15 per 1M tokens</text>
+  <text x="730" y="356" text-anchor="middle" font-size="12" fill="#1E40AF">effort: medium–high · thinking: adaptive</text>
+  <text x="730" y="375" text-anchor="middle" font-size="12" fill="#1E40AF">the default for most coding work</text>
+  <line x1="300" y1="388" x2="300" y2="428" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="315" y="414" font-size="12" font-weight="700" fill="#DC2626">NO</text>
+
+  <!-- Q3 -->
+  <rect x="140" y="432" width="320" height="80" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="300" y="462" text-anchor="middle" font-size="14" font-weight="600" fill="#1E293B">Complex engineering?</text>
+  <text x="300" y="482" text-anchor="middle" font-size="12" fill="#475569">multi-file refactor · architecture design</text>
+  <text x="300" y="499" text-anchor="middle" font-size="12" fill="#475569">hard debugging · long agentic runs</text>
+  <line x1="460" y1="472" x2="530" y2="472" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="495" y="462" text-anchor="middle" font-size="12" font-weight="700" fill="#16A34A">YES</text>
+  <!-- Opus result -->
+  <rect x="535" y="432" width="390" height="80" rx="10" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="730" y="459" text-anchor="middle" font-size="15" font-weight="700" fill="#3730A3">Opus 4.8 — $5 / $25 per 1M tokens</text>
+  <text x="730" y="480" text-anchor="middle" font-size="12" fill="#3730A3">effort: high–xhigh · thinking: adaptive</text>
+  <text x="730" y="499" text-anchor="middle" font-size="12" fill="#3730A3">delegate scoped subtasks to Haiku subagents</text>
+  <line x1="300" y1="512" x2="300" y2="552" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="315" y="538" font-size="12" font-weight="700" fill="#DC2626">NO — frontier problem</text>
+
+  <!-- Fable result -->
+  <rect x="105" y="556" width="390" height="80" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2"/>
+  <text x="300" y="583" text-anchor="middle" font-size="15" font-weight="700" fill="#92400E">Fable 5 — $10 / $50 per 1M tokens</text>
+  <text x="300" y="604" text-anchor="middle" font-size="12" fill="#92400E">effort: high–max · thinking: always on</text>
+  <text x="300" y="623" text-anchor="middle" font-size="12" fill="#92400E">hardest long-horizon problems only</text>
+
+  <!-- Feedback loop -->
+  <rect x="535" y="556" width="390" height="80" rx="10" fill="#FEF2F2" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="730" y="585" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">Quality not good enough?</text>
+  <text x="730" y="606" text-anchor="middle" font-size="12" fill="#991B1B">1) raise effort one level</text>
+  <text x="730" y="624" text-anchor="middle" font-size="12" fill="#991B1B">2) still failing → move up one model tier</text>
+
+  <!-- Effort ladder -->
+  <text x="490" y="692" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">Effort ladder (default: high)</text>
+  <rect x="60" y="710" width="150" height="70" rx="8" fill="#F0FDF4" stroke="#22C55E"/>
+  <text x="135" y="738" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">low</text>
+  <text x="135" y="758" text-anchor="middle" font-size="11" fill="#166534">trivial · subagents</text>
+  <rect x="240" y="710" width="150" height="70" rx="8" fill="#F7FEE7" stroke="#84CC16"/>
+  <text x="315" y="738" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6212">medium</text>
+  <text x="315" y="758" text-anchor="middle" font-size="11" fill="#3F6212">routine, cost-aware</text>
+  <rect x="420" y="710" width="150" height="70" rx="8" fill="#FEFCE8" stroke="#EAB308"/>
+  <text x="495" y="738" text-anchor="middle" font-size="13" font-weight="700" fill="#854D0E">high</text>
+  <text x="495" y="758" text-anchor="middle" font-size="11" fill="#854D0E">default dev work</text>
+  <rect x="600" y="710" width="150" height="70" rx="8" fill="#FFF7ED" stroke="#F97316"/>
+  <text x="675" y="738" text-anchor="middle" font-size="13" font-weight="700" fill="#9A3412">xhigh</text>
+  <text x="675" y="758" text-anchor="middle" font-size="11" fill="#9A3412">hard coding/agentic</text>
+  <rect x="780" y="710" width="150" height="70" rx="8" fill="#FEF2F2" stroke="#EF4444"/>
+  <text x="855" y="738" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">max</text>
+  <text x="855" y="758" text-anchor="middle" font-size="11" fill="#991B1B">correctness &gt; cost</text>
+  <line x1="210" y1="745" x2="238" y2="745" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="745" x2="418" y2="745" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="570" y1="745" x2="598" y2="745" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="750" y1="745" x2="778" y2="745" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Token saving box -->
+  <rect x="60" y="820" width="860" height="240" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="490" y="855" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">Token-saving rules (apply regardless of model)</text>
+  <text x="95" y="892" font-size="13" fill="#334155">1.  Start one tier LOWER than your instinct — upgrading later is cheaper than defaulting high.</text>
+  <text x="95" y="920" font-size="13" fill="#334155">2.  Prompt caching: keep stable content (system prompt, docs, tools) first — cached reads cost ~10%.</text>
+  <text x="95" y="948" font-size="13" fill="#334155">3.  Batch API: −50% on everything that is not latency-sensitive.</text>
+  <text x="95" y="976" font-size="13" fill="#334155">4.  Trim context: send only the relevant files/sections, never the whole repo.</text>
+  <text x="95" y="1004" font-size="13" fill="#334155">5.  Cap max_tokens for short outputs (e.g. 256 for classification) to avoid runaway responses.</text>
+  <text x="95" y="1032" font-size="13" fill="#334155">6.  Fan-out work → cheap subagents (Haiku, effort low); keep the expensive model for synthesis.</text>
+
+  <!-- Thinking note -->
+  <rect x="60" y="1090" width="860" height="110" rx="12" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+  <text x="490" y="1122" text-anchor="middle" font-size="16" font-weight="700" fill="#075985">Thinking: keep it adaptive</text>
+  <text x="95" y="1152" font-size="13" fill="#0C4A6E">Modern models decide when to think on their own — control depth with effort, not thinking toggles.</text>
+  <text x="95" y="1178" font-size="13" fill="#0C4A6E">Disable thinking only for trivial high-volume or latency-critical calls. Fable 5: always on (cannot disable).</text>
+
+  <text x="490" y="1235" text-anchor="middle" font-size="11" fill="#94A3B8">Pricing snapshot mid-2026 — verify current pricing before large workloads</text>
+</svg>
