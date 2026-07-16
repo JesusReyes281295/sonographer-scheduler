@@ -9,6 +9,7 @@ A small daily-scheduling application for sonographers and clinics, built with **
 - **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — validated on both the client (instant feedback) and the mock server (source of truth).
 - Loading, error (with retry) and empty states on every data fetch.
 - **Optimistic UI updates** with automatic rollback when the server rejects a change.
+- **Local-first persistence** — the schedule is saved in the browser (`localStorage`) and survives reloads; a **Reset data** button restores the original sample schedule.
 - Unit tests for the domain rules and integration tests for the critical UI flows.
 
 ## Getting started
@@ -22,7 +23,7 @@ npm run lint       # oxlint with the jsx-a11y plugin enabled
 npm run build      # type-check + production build
 ```
 
-No backend or environment variables required — MSW (Mock Service Worker) intercepts `fetch` calls and serves the REST API in the browser, seeded with sample data for "today".
+No backend or environment variables required — MSW (Mock Service Worker) intercepts `fetch` calls and serves the REST API in the browser, seeded with sample data for "today". Your changes are **persisted locally** (browser `localStorage`), so they survive a page reload; use the **Reset data** button to restore the original sample schedule.
 
 ## Architecture
 
@@ -39,7 +40,7 @@ src/
 │   ├── hooks/                            # TanStack Query hooks (queries + optimistic mutations)
 │   └── services/                         # Typed REST calls (appointmentsApi, clinicsApi, ...)
 ├── shared/components/                    # Reusable UI (Spinner, ErrorBanner)
-└── mocks/                                # MSW handlers + in-memory "database" + seed data
+└── mocks/                                # MSW handlers + local-first "database" (localStorage) + seed data
 ```
 
 **Dependency rule:** `features → core/shared`; `core` depends on nothing above it. Components never call `fetch` directly and never contain business rules.
