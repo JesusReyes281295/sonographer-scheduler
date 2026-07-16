@@ -70,4 +70,11 @@ export const handlers = [
       ? new HttpResponse(null, { status: 204 })
       : HttpResponse.json({ message: 'Appointment not found.' }, { status: 404 });
   }),
+
+  // Restore the original sample data (clears any locally persisted changes).
+  http.post('/api/reset', async () => {
+    await delay(LATENCY_MS);
+    db.reset();
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

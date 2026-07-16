@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
 import type { Appointment, AppointmentDraft } from '../../../core/domain/types';
 import { buildLocalIso } from '../../../core/domain/time';
@@ -6,6 +7,7 @@ import { ErrorBanner } from '../../../shared/components/ErrorBanner';
 import { Spinner } from '../../../shared/components/Spinner';
 import { useAppointmentMutations } from '../hooks/useAppointmentMutations';
 import { useAppointments, useClinics, useSonographers } from '../hooks/useScheduleData';
+import { dataApi } from '../services/scheduleApi';
 import { AppointmentFormDialog } from './AppointmentFormDialog';
 import { ScheduleGrid } from './ScheduleGrid';
 
@@ -21,6 +23,8 @@ const atNoon = (date: string) => new Date(`${date}T12:00:00`);
 export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const queryClient = useQueryClient();
 
   const sonographers = useSonographers();
   const clinics = useClinics();
@@ -46,6 +50,20 @@ export function SchedulePage() {
     }
   };
 
+  const handleReset = async () => {
+    const confirmed = window.confirm(
+      'Reset all data back to the sample schedule? Any appointments you added will be lost.',
+    );
+    if (!confirmed) return;
+    setIsResetting(true);
+    try {
+      await dataApi.reset();
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <main className="page">
       <header className="toolbar">
@@ -62,6 +80,9 @@ export function SchedulePage() {
           </button>
         </nav>
         <p className="toolbar__date">{format(atNoon(date), 'EEEE, MMMM d, yyyy')}</p>
+        <button type="button" onClick={handleReset} disabled={isResetting}>
+          {isResetting ? 'Resetting…' : 'Reset data'}
+        </button>
         <button
           type="button"
           className="button--primary"
