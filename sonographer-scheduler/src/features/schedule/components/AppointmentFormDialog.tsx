@@ -1,8 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { validateAppointment } from '../../../core/domain/scheduling';
+import { clinicHolidayClosure, validateAppointment } from '../../../core/domain/scheduling';
 import type { Appointment, AppointmentDraft, Clinic, Sonographer } from '../../../core/domain/types';
 import styles from './AppointmentFormDialog.module.css';
+
+/** One-tap note shortcuts so the front desk doesn't retype common annotations. */
+const NOTE_SUGGESTIONS = ['Urgent', 'Possibly cancelled', 'Follow-up needed', 'New patient', 'Bring prior scans'];
 
 interface AppointmentFormDialogProps {
   mode: 'create' | 'edit';
@@ -48,6 +51,23 @@ export function AppointmentFormDialog({
   useEffect(() => {
     dialogRef.current?.showModal();
   }, []);
+
+  // Holiday awareness: if the chosen clinic is closed on the chosen day, warn and
+  // suggest clinics that are open that day so the user can rebook in one tap.
+  const selectedClinic = clinics.find((c) => c.id === clinicId);
+  const closureHoliday = selectedClinic ? clinicHolidayClosure(selectedClinic, day) : null;
+  const openClinics = clinics.filter((c) => !clinicHolidayClosure(c, day));
+
+  const addNote = (text: string) => {
+    setNotes((current) => {
+      const parts = current
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean);
+      if (parts.some((p) => p.toLowerCase() === text.toLowerCase())) return current;
+      return [...parts, text].join(', ');
+    });
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -179,6 +199,33 @@ export function AppointmentFormDialog({
           </div>
         </div>
 
+        {closureHoliday && (
+          <output className={styles.holidayNotice}>
+            <p className={styles.holidayNoticeTitle}>
+              {selectedClinic?.name} is closed on {closureHoliday} (US holiday).
+            </p>
+            {openClinics.length > 0 ? (
+              <div className={styles.holidaySuggestions}>
+                <span>Open that day — book at:</span>
+                <div className={styles.chips}>
+                  {openClinics.slice(0, 4).map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={styles.chip}
+                      onClick={() => setClinicId(c.id)}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p>No clinics are open on this holiday — please choose another day.</p>
+            )}
+          </output>
+        )}
+
         <div className={styles.field}>
           <label htmlFor={`${formId}-notes`}>Notes (optional)</label>
           <textarea
@@ -188,6 +235,18 @@ export function AppointmentFormDialog({
             rows={2}
             maxLength={300}
           />
+          <div className={styles.chips} aria-label="Quick note suggestions">
+            {NOTE_SUGGESTIONS.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                className={styles.chip}
+                onClick={() => addNote(suggestion)}
+              >
+                + {suggestion}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className={styles.actions}>

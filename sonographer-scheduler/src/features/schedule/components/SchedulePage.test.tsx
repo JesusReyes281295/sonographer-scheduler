@@ -76,4 +76,26 @@ describe('SchedulePage', () => {
 
     expect(await screen.findByText('New Patient')).toBeInTheDocument();
   });
+
+  it('warns when a clinic is closed on a US holiday and recommends an open one', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Maria Lopez');
+
+    await user.click(screen.getByRole('button', { name: /new appointment/i }));
+    const dialog = await screen.findByRole('dialog');
+
+    // Northside Clinic (c2) observes holidays; Christmas Day 2026 is a US federal holiday.
+    await user.selectOptions(
+      within(dialog).getByLabelText(/clinic/i),
+      within(dialog).getByRole('option', { name: /northside clinic/i }),
+    );
+    fireEvent.change(within(dialog).getByLabelText(/^date/i), { target: { value: '2026-12-25' } });
+
+    expect(await within(dialog).findByText(/closed on Christmas Day/i)).toBeInTheDocument();
+
+    // The recommendation switches the booking to a clinic that is open that day.
+    await user.click(within(dialog).getByRole('button', { name: /^Downtown Imaging$/ }));
+    expect((within(dialog).getByLabelText(/clinic/i) as HTMLSelectElement).value).toBe('c1');
+  });
 });
