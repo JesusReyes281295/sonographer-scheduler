@@ -1,11 +1,25 @@
+import { getUsHoliday } from './holidays';
 import type { Appointment, AppointmentDraft, Clinic } from './types';
 import { minutesOfDay, timeToMinutes } from './time';
 
-export type SchedulingErrorCode = 'INVALID_RANGE' | 'OUTSIDE_CLINIC_HOURS' | 'DOUBLE_BOOKED';
+export type SchedulingErrorCode =
+  | 'INVALID_RANGE'
+  | 'OUTSIDE_CLINIC_HOURS'
+  | 'DOUBLE_BOOKED'
+  | 'CLINIC_CLOSED_HOLIDAY';
 
 export interface SchedulingError {
   code: SchedulingErrorCode;
   message: string;
+}
+
+/**
+ * If the clinic observes US federal holidays and the given date ("yyyy-MM-dd")
+ * is one, returns the holiday name (the clinic is closed); otherwise null.
+ */
+export function clinicHolidayClosure(clinic: Clinic, dateStr: string): string | null {
+  if (!clinic.observesHolidays) return null;
+  return getUsHoliday(dateStr);
 }
 
 /**
@@ -37,6 +51,14 @@ export function validateAppointment(
 
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
     return [{ code: 'INVALID_RANGE', message: 'End time must be after start time.' }];
+  }
+
+  const holiday = clinicHolidayClosure(clinic, draft.start.slice(0, 10));
+  if (holiday) {
+    errors.push({
+      code: 'CLINIC_CLOSED_HOLIDAY',
+      message: `${clinic.name} is closed on ${holiday}. Choose a clinic that's open that day.`,
+    });
   }
 
   const sameDay = start.toDateString() === end.toDateString();

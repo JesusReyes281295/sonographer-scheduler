@@ -12,6 +12,8 @@ export interface Clinic {
   closeTime: string;
   /** Accent color used to identify the clinic in the schedule. */
   color: string;
+  /** When true, the clinic is closed on US federal holidays. Defaults to open. */
+  observesHolidays?: boolean;
 }
 
 export interface Appointment {

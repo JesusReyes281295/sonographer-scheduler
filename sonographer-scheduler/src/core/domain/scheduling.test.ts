@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { overlaps, validateAppointment } from './scheduling';
+import { clinicHolidayClosure, overlaps, validateAppointment } from './scheduling';
 import type { Appointment, AppointmentDraft, Clinic } from './types';
 
 const clinic: Clinic = {
@@ -8,6 +8,13 @@ const clinic: Clinic = {
   openTime: '08:00',
   closeTime: '17:00',
   color: '#2563eb',
+};
+
+const holidayClinic: Clinic = {
+  ...clinic,
+  id: 'c2',
+  name: 'Northside Clinic',
+  observesHolidays: true,
 };
 
 const at = (time: string) => new Date(`2026-07-13T${time}:00`);
@@ -139,5 +146,33 @@ describe('validateAppointment', () => {
       clinic,
     );
     expect(codes(result)).toEqual(expect.arrayContaining(['OUTSIDE_CLINIC_HOURS', 'DOUBLE_BOOKED']));
+  });
+});
+
+describe('holiday-aware scheduling', () => {
+  it('flags a holiday-observing clinic as closed on a US federal holiday', () => {
+    expect(clinicHolidayClosure(holidayClinic, '2026-12-25')).toBe('Christmas Day');
+  });
+
+  it('treats a clinic that does not observe holidays as open', () => {
+    expect(clinicHolidayClosure(clinic, '2026-12-25')).toBeNull();
+  });
+
+  it('rejects booking a holiday-observing clinic on a holiday', () => {
+    const result = validateAppointment(
+      draft({ clinicId: 'c2', start: '2026-12-25T09:00:00', end: '2026-12-25T10:00:00' }),
+      [],
+      holidayClinic,
+    );
+    expect(codes(result)).toContain('CLINIC_CLOSED_HOLIDAY');
+  });
+
+  it('allows booking a non-observing clinic on the same holiday', () => {
+    const result = validateAppointment(
+      draft({ start: '2026-12-25T09:00:00', end: '2026-12-25T10:00:00' }),
+      [],
+      clinic,
+    );
+    expect(result).toEqual([]);
   });
 });
