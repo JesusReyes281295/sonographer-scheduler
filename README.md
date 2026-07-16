@@ -39,6 +39,7 @@ It's a daily-scheduling tool for sonographers and clinics: a grid where sonograp
 - 📅 **Daily schedule grid** with day-to-day navigation.
 - ➕ **Create, edit, move and cancel** appointments (moving = changing time or sonographer).
 - 🚫 **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — checked instantly on the client *and* re-validated on the server, exactly like a production system.
+- 🇺🇸 **Holiday-aware** — clinics that observe **US federal holidays** block bookings on those days and the app recommends one that's open instead.
 - ⚡ **Optimistic UI** — actions feel instant, with automatic rollback if the server says no.
 - 🧭 Clear **loading, error (with retry) and empty** states everywhere.
 - ♿ **Accessible by default** — full keyboard support, screen-reader labels, focus management.

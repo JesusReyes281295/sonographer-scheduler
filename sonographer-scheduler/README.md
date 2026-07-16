@@ -7,6 +7,8 @@ A small daily-scheduling application for sonographers and clinics, built with **
 - Daily schedule grid: sonographers as columns, hours as rows, with day navigation.
 - Create, edit, delete and **move** appointments (moving = changing time/sonographer in the edit dialog).
 - **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — validated on both the client (instant feedback) and the mock server (source of truth).
+- **Holiday-aware scheduling** — clinics that observe **US federal holidays** are closed those days; booking one is blocked (client + server) and the form recommends a clinic that's open, with one tap to switch.
+- **Quick note shortcuts** — one-tap chips ("Urgent", "Possibly cancelled", …) to annotate appointments without retyping.
 - Loading, error (with retry) and empty states on every data fetch.
 - **Optimistic UI updates** with automatic rollback when the server rejects a change.
 - Unit tests for the domain rules and integration tests for the critical UI flows.
@@ -32,7 +34,8 @@ src/
 ├── core/                                 # Framework-agnostic core
 │   ├── api/http.ts                       # fetch wrapper: JSON + error normalization (ApiError)
 │   └── domain/                           # ⭐ Business rules as pure functions + types
-│       ├── scheduling.ts                 #   overlaps(), validateAppointment()
+│       ├── scheduling.ts                 #   overlaps(), validateAppointment(), holiday closures
+│       ├── holidays.ts                   #   US federal holiday calendar (pure date math)
 │       └── time.ts                       #   time math helpers
 ├── features/schedule/                    # The scheduling feature
 │   ├── components/                       # SchedulePage, ScheduleGrid, AppointmentFormDialog
