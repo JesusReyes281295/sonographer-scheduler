@@ -1,0 +1,104 @@
+.wrapper {
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  max-height: 75vh;
+}
+
+.grid {
+  display: grid;
+  min-width: 640px;
+}
+
+.corner,
+.columnHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.columnHeader {
+  border-left: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.timeGutter {
+  position: relative;
+}
+
+.hourLabel {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #64748b;
+  padding-top: 2px;
+}
+
+.column {
+  position: relative;
+  border-left: 1px solid #e2e8f0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 59px,
+    #f1f5f9 59px,
+    #f1f5f9 60px
+  );
+}
+
+.slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.slot:hover,
+.slot:focus-visible {
+  background: rgba(37, 99, 235, 0.08);
+  outline-offset: -2px;
+}
+
+.appointment {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #fff;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.appointment:hover {
+  filter: brightness(1.08);
+}
+
+.appointment:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+}
+
+.appointment strong {
+  font-size: 13px;
+}
