@@ -111,13 +111,21 @@ Want to use them elsewhere? Copy the [`skills/`](./skills) folder (and `CLAUDE.m
 
 ## 🗺️ Roadmap
 
-This is where we're headed — expect this list (and this README) to keep evolving:
+📋 **The detailed, living plan — what's done, what's next, step by step — lives in
+[`docs/ROADMAP.md`](./docs/ROADMAP.md).** Work ships as **one pull request per feature.**
 
-- [ ] Wire the security-review and code-review skills into CI/CD as automated PR checks.
-- [ ] Drag-and-drop appointment moving on top of the existing validation.
-- [ ] Week view and sonographer/clinic filters.
-- [ ] End-to-end tests reusing the mock data.
-- [ ] Swap the mocked API for a real backend (a base-URL change, by design).
+On the way:
+
+- [ ] 💾 **Local-first persistence** — your data survives reloads with zero setup (no database to install).
+- [ ] 🧑‍⚕️ **Patients & consultation types** as first-class, customizable entities (names + icons).
+- [ ] 🏥 **Hospital management UI** — set up the app for a specific clinic in minutes.
+- [ ] 🔀 **Drag-and-drop** appointment moving on top of the existing validation.
+- [ ] 🗓️ **Week view** and sonographer/clinic filters.
+- [ ] 🧪 **End-to-end tests** reusing the seed data.
+- [ ] 🎬 **Guided demo tour** to learn every feature (exit anytime with `Escape`).
+
+_Deferred for now:_ a hosted backend (the app is already backend-ready — see the plan) and
+wiring the review skills into CI/CD.
 
 ---
 
