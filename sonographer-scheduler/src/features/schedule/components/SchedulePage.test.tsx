@@ -177,16 +177,20 @@ describe('SchedulePage', () => {
 });
 
 describe('Moving an appointment by drag-and-drop', () => {
-  // jsdom has no DataTransfer; a stub is enough since the drop reads the dragged
-  // appointment from component state, not from the transfer payload.
-  const dataTransfer = () => ({ setData: vi.fn(), getData: vi.fn(), effectAllowed: '', dropEffect: '' });
-
+  // The grid drags with pointer events and resolves the drop target via
+  // document.elementFromPoint, which jsdom doesn't compute — so we point it at
+  // the target slot. The press moves past the drag threshold to become a drag.
   function dragCardOntoSlot(card: HTMLElement, slot: HTMLElement) {
-    const transfer = dataTransfer();
-    fireEvent.dragStart(card, { dataTransfer: transfer });
-    fireEvent.dragOver(slot, { dataTransfer: transfer });
-    fireEvent.drop(slot, { dataTransfer: transfer });
-    fireEvent.dragEnd(card, { dataTransfer: transfer });
+    // jsdom doesn't implement elementFromPoint at all; stand it in for the drop.
+    const previous = document.elementFromPoint;
+    document.elementFromPoint = () => slot;
+    try {
+      fireEvent.pointerDown(card, { button: 0, pointerId: 1, clientX: 0, clientY: 0 });
+      fireEvent.pointerMove(card, { pointerId: 1, clientX: 40, clientY: 40 });
+      fireEvent.pointerUp(card, { pointerId: 1, clientX: 40, clientY: 40 });
+    } finally {
+      document.elementFromPoint = previous;
+    }
   }
 
   it('moves an appointment to another sonographer, keeping its duration', async () => {
