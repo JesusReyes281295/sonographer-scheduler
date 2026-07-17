@@ -1,0 +1,67 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* When there's no target (intro/outro) the whole screen dims here instead of
+   through the spotlight's box-shadow. */
+.dim {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* A "hole" over the target: the huge box-shadow dims everything around it. */
+.spotlight {
+  position: fixed;
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  pointer-events: none;
+  transition: top 0.15s ease, left 0.15s ease, width 0.15s ease, height 0.15s ease;
+}
+
+.card {
+  position: fixed;
+  z-index: 1001;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  margin: 0;
+  background: #fff;
+  color: #0f172a;
+  border: none;
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.35);
+}
+
+.counter {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2563eb;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.body {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spacer {
+  flex: 1;
+}

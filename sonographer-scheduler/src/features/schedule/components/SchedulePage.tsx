@@ -25,6 +25,7 @@ import { ScheduleGrid } from './ScheduleGrid';
 import { ScheduleFilters } from './ScheduleFilters';
 import { EMPTY_FILTERS, type Filters } from '../filters';
 import { WeekGrid } from './WeekGrid';
+import { TutorialTour, type TourStep } from './TutorialTour';
 
 type View = 'day' | 'week';
 
@@ -37,12 +38,49 @@ const toDateParam = (date: Date) => format(date, 'yyyy-MM-dd');
 /** Noon avoids any DST edge cases when shifting whole days. */
 const atNoon = (date: string) => new Date(`${date}T12:00:00`);
 
+const TOUR_STEPS: TourStep[] = [
+  {
+    title: 'Welcome 👋',
+    body: 'This quick tutorial shows you around the schedule. Use Next and Back (or the arrow keys), and press Escape to leave at any time.',
+  },
+  {
+    target: '[data-tour="view"]',
+    title: 'Day or week',
+    body: 'Switch between a single day and the whole week here. Your choice is remembered next time you open the app.',
+  },
+  {
+    target: '[data-tour="filters"]',
+    title: 'Filter the schedule',
+    body: 'Show only certain sonographers or clinics. With nothing selected, everything is shown.',
+  },
+  {
+    target: 'section[aria-label*="schedule"]',
+    title: 'Book, edit, and drag',
+    body: 'Click an empty slot to book, click an appointment to edit it, and drag a card to reschedule — to another time, another sonographer, or (in the week view) another day.',
+  },
+  {
+    target: '[data-tour="new"]',
+    title: 'New appointment',
+    body: 'Prefer a form? Start a new appointment here and pick the patient, study type, time and clinic.',
+  },
+  {
+    target: '[data-tour="manage"]',
+    title: 'Manage your hospital',
+    body: 'Add or edit clinics, sonographers, patients and study types in the Manage panel — the schedule updates right away.',
+  },
+  {
+    title: "You're all set 🎉",
+    body: 'That’s the tour. Reopen it anytime from the Tutorial button. Happy scheduling!',
+  },
+];
+
 export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
   const [view, setView] = usePersistentState<View>('scheduler.view', 'day');
   const [filters, setFilters] = usePersistentState<Filters>('scheduler.filters', EMPTY_FILTERS);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [managing, setManaging] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
   /** Why the last drag-and-drop move was refused (null when there's nothing to show). */
   const [moveError, setMoveError] = useState<string | null>(null);
 
@@ -193,7 +231,7 @@ export function SchedulePage() {
       <header className="toolbar">
         <h1>Sonographer schedule</h1>
 
-        <div className="view-toggle">
+        <div className="view-toggle" data-tour="view">
           <button
             type="button"
             className={`view-toggle__btn${view === 'day' ? ' is-active' : ''}`}
@@ -239,11 +277,15 @@ export function SchedulePage() {
           />
         )}
 
-        <button type="button" onClick={() => setManaging(true)}>
+        <button type="button" onClick={() => setTourOpen(true)}>
+          Tutorial
+        </button>
+        <button type="button" data-tour="manage" onClick={() => setManaging(true)}>
           Manage
         </button>
         <button
           type="button"
+          data-tour="new"
           className="button--primary"
           onClick={() => setDialog({ mode: 'create', initial: {} })}
         >
@@ -344,6 +386,8 @@ export function SchedulePage() {
       )}
 
       {managing && <ManagementDialog onClose={() => setManaging(false)} />}
+
+      {tourOpen && <TutorialTour steps={TOUR_STEPS} onClose={() => setTourOpen(false)} />}
 
       {dialog && referenceReady && (
         <AppointmentFormDialog

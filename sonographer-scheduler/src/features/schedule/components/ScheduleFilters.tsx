@@ -20,7 +20,7 @@ export function ScheduleFilters({ sonographers, clinics, value, onChange }: Sche
   const activeCount = value.sonographerIds.length + value.clinicIds.length;
 
   return (
-    <details className={styles.filters}>
+    <details className={styles.filters} data-tour="filters">
       <summary className={styles.summary}>
         Filters
         {activeCount > 0 && <span className={styles.badge}>{activeCount}</span>}
