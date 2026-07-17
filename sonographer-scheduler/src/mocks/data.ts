@@ -14,16 +14,16 @@ export const sonographers: Sonographer[] = [
 // A mix of hospital-affiliated sites that stay open on public holidays and
 // outpatient clinics that observe US federal holidays (closed those days).
 export const clinics: Clinic[] = [
-  { id: 'c1', name: 'Downtown Imaging', openTime: '08:00', closeTime: '17:00', color: '#2563eb', observesHolidays: false },
-  { id: 'c2', name: 'Northside Clinic', openTime: '09:00', closeTime: '15:00', color: '#059669', observesHolidays: true },
-  { id: 'c3', name: 'Riverside Diagnostics', openTime: '08:00', closeTime: '16:00', color: '#d97706', observesHolidays: false },
-  { id: 'c4', name: "Lakeview Women's Health", openTime: '09:00', closeTime: '17:00', color: '#db2777', observesHolidays: true },
-  { id: 'c5', name: 'Central Hospital Radiology', openTime: '07:00', closeTime: '19:00', color: '#7c3aed', observesHolidays: false },
-  { id: 'c6', name: 'Eastgate Imaging', openTime: '08:30', closeTime: '16:30', color: '#0891b2', observesHolidays: true },
-  { id: 'c7', name: 'Harbor Medical Center', openTime: '07:00', closeTime: '18:00', color: '#dc2626', observesHolidays: false },
-  { id: 'c8', name: 'Sunset Family Clinic', openTime: '09:00', closeTime: '14:00', color: '#65a30d', observesHolidays: true },
-  { id: 'c9', name: 'Mountainview Ultrasound', openTime: '08:00', closeTime: '16:00', color: '#ea580c', observesHolidays: false },
-  { id: 'c10', name: 'Parkside Urgent Care', openTime: '07:00', closeTime: '20:00', color: '#0d9488', observesHolidays: false },
+  { id: 'c1', name: 'Downtown Imaging', openTime: '08:00', closeTime: '17:00', color: '#2563eb', icon: '🏥', observesHolidays: false },
+  { id: 'c2', name: 'Northside Clinic', openTime: '09:00', closeTime: '15:00', color: '#059669', icon: '🩺', observesHolidays: true },
+  { id: 'c3', name: 'Riverside Diagnostics', openTime: '08:00', closeTime: '16:00', color: '#d97706', icon: '🔬', observesHolidays: false },
+  { id: 'c4', name: "Lakeview Women's Health", openTime: '09:00', closeTime: '17:00', color: '#db2777', icon: '🌸', observesHolidays: true },
+  { id: 'c5', name: 'Central Hospital Radiology', openTime: '07:00', closeTime: '19:00', color: '#7c3aed', icon: '🏥', observesHolidays: false },
+  { id: 'c6', name: 'Eastgate Imaging', openTime: '08:30', closeTime: '16:30', color: '#0891b2', icon: '🔬', observesHolidays: true },
+  { id: 'c7', name: 'Harbor Medical Center', openTime: '07:00', closeTime: '18:00', color: '#dc2626', icon: '⛑️', observesHolidays: false },
+  { id: 'c8', name: 'Sunset Family Clinic', openTime: '09:00', closeTime: '14:00', color: '#65a30d', icon: '🩺', observesHolidays: true },
+  { id: 'c9', name: 'Mountainview Ultrasound', openTime: '08:00', closeTime: '16:00', color: '#ea580c', icon: '🔬', observesHolidays: false },
+  { id: 'c10', name: 'Parkside Urgent Care', openTime: '07:00', closeTime: '20:00', color: '#0d9488', icon: '🚑', observesHolidays: false },
 ];
 
 // Every entry is an ultrasound study a sonographer actually performs — no other
