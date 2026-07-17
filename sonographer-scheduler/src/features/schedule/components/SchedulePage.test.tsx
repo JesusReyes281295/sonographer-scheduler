@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { format } from 'date-fns';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '../../../mocks/db';
 import { server } from '../../../mocks/server';
@@ -10,6 +11,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
   db.reset();
+  localStorage.clear(); // drop persisted view/filter prefs so tests don't leak into each other
 });
 afterAll(() => server.close());
 
@@ -22,6 +24,21 @@ function renderPage() {
       <SchedulePage />
     </QueryClientProvider>,
   );
+}
+
+// The grids drag with pointer events and resolve the drop target via
+// document.elementFromPoint, which jsdom doesn't compute — so we point it at the
+// target slot. The press moves past the drag threshold to become a drag.
+function dragCardOntoSlot(card: HTMLElement, slot: HTMLElement) {
+  const previous = document.elementFromPoint;
+  document.elementFromPoint = () => slot;
+  try {
+    fireEvent.pointerDown(card, { button: 0, pointerId: 1, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(card, { pointerId: 1, clientX: 40, clientY: 40 });
+    fireEvent.pointerUp(card, { pointerId: 1, clientX: 40, clientY: 40 });
+  } finally {
+    document.elementFromPoint = previous;
+  }
 }
 
 /** Books a slot that is free in the seed (Carla Reyes, 11:00–12:00) for a patient. */
@@ -177,21 +194,6 @@ describe('SchedulePage', () => {
 });
 
 describe('Moving an appointment by drag-and-drop', () => {
-  // The grid drags with pointer events and resolves the drop target via
-  // document.elementFromPoint, which jsdom doesn't compute — so we point it at
-  // the target slot. The press moves past the drag threshold to become a drag.
-  function dragCardOntoSlot(card: HTMLElement, slot: HTMLElement) {
-    // jsdom doesn't implement elementFromPoint at all; stand it in for the drop.
-    const previous = document.elementFromPoint;
-    document.elementFromPoint = () => slot;
-    try {
-      fireEvent.pointerDown(card, { button: 0, pointerId: 1, clientX: 0, clientY: 0 });
-      fireEvent.pointerMove(card, { pointerId: 1, clientX: 40, clientY: 40 });
-      fireEvent.pointerUp(card, { pointerId: 1, clientX: 40, clientY: 40 });
-    } finally {
-      document.elementFromPoint = previous;
-    }
-  }
 
   it('moves an appointment to another sonographer, keeping its duration', async () => {
     renderPage();
@@ -239,6 +241,69 @@ describe('Moving an appointment by drag-and-drop', () => {
   });
 });
 
+describe('Week view and filters', () => {
+  it('switches to the week view and still shows the appointments', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Maria Lopez');
+
+    await user.click(screen.getByRole('button', { name: /^week$/i }));
+
+    expect(await screen.findByRole('region', { name: /weekly schedule/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Maria Lopez, OB ultrasound/i })).toBeInTheDocument();
+  });
+
+  it('filters the day view down to the chosen sonographer', async () => {
+    renderPage();
+    await screen.findByText('Maria Lopez'); // Alice Chen's patient
+    expect(screen.getByText('James Field')).toBeInTheDocument(); // Brian Osei's patient
+
+    // The filter checkbox is in the DOM even while the panel is collapsed.
+    fireEvent.click(screen.getByLabelText('Alice Chen'));
+
+    await waitFor(() => expect(screen.queryByText('James Field')).not.toBeInTheDocument());
+    expect(screen.getByText('Maria Lopez')).toBeInTheDocument();
+  });
+
+  it('persists the chosen view', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Maria Lopez');
+
+    await user.click(screen.getByRole('button', { name: /^week$/i }));
+
+    await waitFor(() => expect(localStorage.getItem('scheduler.view')).toBe('"week"'));
+  });
+
+  it('moves an appointment to another day by dragging it in the week view', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Maria Lopez');
+
+    await user.click(screen.getByRole('button', { name: /^week$/i }));
+    await screen.findByRole('region', { name: /weekly schedule/i });
+
+    // a1 (Maria Lopez, Alice Chen, 09:00–10:00) sits on today's column.
+    const card = await screen.findByRole('button', { name: /Maria Lopez, OB ultrasound/i });
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const target = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-slot][data-minutes="540"]'),
+    ).find((slot) => slot.dataset.date && slot.dataset.date !== today);
+    expect(target).toBeTruthy();
+    const targetDate = target!.dataset.date!;
+
+    dragCardOntoSlot(card, target!);
+
+    // Landed on the new day at 09:00, same sonographer — and the move persisted.
+    await waitFor(() => {
+      const moved = db.getAppointment('a1');
+      expect(moved?.start.startsWith(targetDate)).toBe(true);
+      expect(moved?.start).toMatch(/T09:00:00$/);
+      expect(moved?.sonographerId).toBe('s1');
+    });
+  });
+});
+
 describe('Managing the hospital', () => {
   async function openManagement(user: ReturnType<typeof userEvent.setup>) {
     renderPage();
@@ -258,8 +323,9 @@ describe('Managing the hospital', () => {
 
     await user.click(within(manage).getByRole('button', { name: /^close$/i }));
 
-    // Now a real column in the grid, not just a row in the dialog.
-    expect(await screen.findByText('Hugo Silva')).toBeInTheDocument();
+    // A real column in the grid (scoped so it doesn't match the filter checkbox).
+    const grid = screen.getByRole('region', { name: /daily schedule/i });
+    expect(await within(grid).findByText('Hugo Silva')).toBeInTheDocument();
   });
 
   it('refuses to delete a clinic that still has appointments', async () => {

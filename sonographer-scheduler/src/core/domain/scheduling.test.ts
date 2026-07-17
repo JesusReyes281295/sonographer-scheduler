@@ -187,6 +187,16 @@ describe('computeMovedSlot', () => {
     const moved = computeMovedSlot(booked, 's1', 15 * 60); // 15:00–16:00, free for s1
     expect(validateAppointment(moved, [booked], clinic)).toEqual([]);
   });
+
+  it('moves the appointment to another day when a target date is given', () => {
+    // Same sonographer + time, but dropped on a different day (week view).
+    expect(computeMovedSlot(booked, 's1', 9 * 60, '2026-07-16')).toEqual({
+      id: 'a1',
+      sonographerId: 's1',
+      start: '2026-07-16T09:00:00',
+      end: '2026-07-16T10:00:00',
+    });
+  });
 });
 
 describe('holiday-aware scheduling', () => {
