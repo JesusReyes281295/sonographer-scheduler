@@ -499,6 +499,8 @@ export function SchedulePage() {
 
       {dialog && referenceReady && (
         <AppointmentFormDialog
+          // Remounts on mode/appointment change so "Book again" starts a fresh form.
+          key={dialog.mode === 'edit' ? `edit-${dialog.appointment.id}` : 'create'}
           mode={dialog.mode}
           date={date}
           initial={formInitial}
@@ -509,6 +511,21 @@ export function SchedulePage() {
           appointments={scopeAppointments}
           onSubmit={handleSubmit}
           onDelete={dialog.mode === 'edit' ? handleDelete : undefined}
+          onDuplicate={
+            dialog.mode === 'edit'
+              ? () =>
+                  setDialog({
+                    mode: 'create',
+                    initial: {
+                      patientName: editPatient?.name ?? '',
+                      patientPhone: editPatient?.phone,
+                      sonographerId: dialog.appointment.sonographerId,
+                      clinicId: dialog.appointment.clinicId,
+                      consultationTypeId: dialog.appointment.consultationTypeId,
+                    },
+                  })
+              : undefined
+          }
           onClose={() => setDialog(null)}
         />
       )}
