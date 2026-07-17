@@ -70,6 +70,22 @@ body {
   color: #334155;
 }
 
+/* Compact "jump to any date" picker next to the formatted date. */
+.toolbar__jump {
+  font: inherit;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.toolbar__jump:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 /* Prominent Day / Week switch. */
 .view-toggle {
   display: inline-flex;
@@ -156,11 +172,15 @@ button:disabled {
   background: #eff6ff;
 }
 
+/* One compact line: the legend is reference material, not the main event —
+   it scrolls sideways instead of stacking rows and pushing the schedule down. */
 .legend-row {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px 14px;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .legend-row__label {
@@ -174,7 +194,7 @@ button:disabled {
 .legend {
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 16px;
   margin: 0;
   padding: 0;
@@ -186,6 +206,8 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .legend__dot {

@@ -302,6 +302,15 @@ export function SchedulePage() {
               : format(atNoon(date), 'EEEE, MMMM d, yyyy')}
           </p>
 
+          {/* Jump straight to any date instead of clicking Next dozens of times. */}
+          <input
+            type="date"
+            className="toolbar__jump"
+            value={date}
+            onChange={(e) => e.target.value && setDate(e.target.value)}
+            aria-label="Jump to date"
+          />
+
           {sonographers.data && clinics.data && (
             <div className="toolbar__filters">
               <ScheduleFilters
@@ -388,6 +397,7 @@ export function SchedulePage() {
             />
           ) : (
             <ScheduleGrid
+              date={date}
               sonographers={visibleSonographers}
               clinics={clinics.data!}
               patients={patients.data!}

@@ -1,5 +1,7 @@
 .wrapper {
   overflow: auto;
+  /* Keep the vertical scrollbar from covering the last column. */
+  scrollbar-gutter: stable;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   background: #fff;
@@ -15,9 +17,15 @@
 .columnHeader {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 8;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
+}
+
+/* Top-left cell pins in both directions, above the row and column it crosses. */
+.corner {
+  left: 0;
+  z-index: 9;
 }
 
 .columnHeader {
@@ -27,8 +35,13 @@
   font-size: 14px;
 }
 
+/* The hours stay visible while scrolling horizontally across sonographers. */
 .timeGutter {
-  position: relative;
+  position: sticky;
+  left: 0;
+  z-index: 7;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
 }
 
 .hourLabel {
@@ -38,6 +51,11 @@
   font-size: 12px;
   color: #64748b;
   padding-top: 2px;
+}
+
+/* The first hour sits at the very top edge — don't center it or it gets clipped. */
+.hourLabel:first-child {
+  transform: none;
 }
 
 .column {
@@ -91,6 +109,8 @@
   user-select: none;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  /* Keeps white text readable on the lighter clinic colours. */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .appointment:hover {
@@ -127,4 +147,26 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The red "it is now this time" line, drawn across today's columns. */
+.nowLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.nowLine::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
 }
