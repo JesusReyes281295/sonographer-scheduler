@@ -43,6 +43,8 @@ interface AppointmentFormDialogProps {
   appointments: Appointment[];
   onSubmit: (values: AppointmentFormValues) => Promise<void>;
   onDelete?: () => Promise<void>;
+  /** Start a fresh booking for the same patient, study and clinic (edit mode only). */
+  onDuplicate?: () => void;
   onClose: () => void;
 }
 
@@ -59,6 +61,7 @@ export function AppointmentFormDialog({
   appointments,
   onSubmit,
   onDelete,
+  onDuplicate,
   onClose,
 }: AppointmentFormDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -346,6 +349,16 @@ export function AppointmentFormDialog({
           {mode === 'edit' && (
             <button type="button" onClick={() => window.print()} disabled={submitting}>
               Print
+            </button>
+          )}
+          {mode === 'edit' && onDuplicate && (
+            <button
+              type="button"
+              onClick={onDuplicate}
+              disabled={submitting}
+              title="Start a new booking for the same patient, study and clinic — you pick the new time"
+            >
+              Book again
             </button>
           )}
           <span className={styles.spacer} />

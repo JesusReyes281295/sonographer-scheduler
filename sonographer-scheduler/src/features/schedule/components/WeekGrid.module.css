@@ -138,6 +138,18 @@
   outline-offset: 2px;
 }
 
+/* Appointments that already ended step back so what's left of the week stands out. */
+.past {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+.past:not(.dragging):hover,
+.past:not(.dragging):focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
 .appointment > strong {
   font-size: 12px;
   max-width: 100%;

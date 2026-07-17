@@ -154,6 +154,18 @@
   filter: brightness(1.08);
 }
 
+/* Appointments that already ended step back so what's left of the day stands out. */
+.past {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+.past:hover,
+.past:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
 /* The card being dragged: dim it and show the grabbing cursor. */
 .dragging {
   opacity: 0.4;
