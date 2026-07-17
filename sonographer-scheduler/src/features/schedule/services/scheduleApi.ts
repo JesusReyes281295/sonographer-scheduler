@@ -1,5 +1,12 @@
 import { http } from '../../../core/api/http';
-import type { Appointment, AppointmentDraft, Clinic, Sonographer } from '../../../core/domain/types';
+import type {
+  Appointment,
+  AppointmentDraft,
+  Clinic,
+  ConsultationType,
+  Patient,
+  Sonographer,
+} from '../../../core/domain/types';
 
 export const sonographersApi = {
   list: () => http<Sonographer[]>('/api/sonographers'),
@@ -7,6 +14,16 @@ export const sonographersApi = {
 
 export const clinicsApi = {
   list: () => http<Clinic[]>('/api/clinics'),
+};
+
+export const consultationTypesApi = {
+  list: () => http<ConsultationType[]>('/api/consultation-types'),
+};
+
+export const patientsApi = {
+  list: () => http<Patient[]>('/api/patients'),
+  create: (patient: { name: string; mrn?: string }) =>
+    http<Patient>('/api/patients', { method: 'POST', body: JSON.stringify(patient) }),
 };
 
 export const appointmentsApi = {

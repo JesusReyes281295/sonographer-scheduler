@@ -102,3 +102,13 @@
 .appointment strong {
   font-size: 13px;
 }
+
+/* A card is only as tall as its appointment is long, so each line must stay on
+   one line and end in an ellipsis instead of wrapping and being cut mid-word. */
+.appointment > strong,
+.appointment > span {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

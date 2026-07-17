@@ -14,6 +14,12 @@ export interface SchedulingError {
 }
 
 /**
+ * The only fields the scheduling rules need. Narrower than `AppointmentDraft`
+ * so callers (e.g. the form, before a patient exists) don't have to invent one.
+ */
+export type AppointmentSlot = Pick<AppointmentDraft, 'id' | 'sonographerId' | 'start' | 'end'>;
+
+/**
  * If the clinic observes US federal holidays and the given date ("yyyy-MM-dd")
  * is one, returns the holiday name (the clinic is closed); otherwise null.
  */
@@ -37,23 +43,23 @@ export function overlaps(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): bo
  * - it must fall within the clinic's operating hours,
  * - the sonographer must not be double-booked.
  *
- * When editing, `draft.id` excludes the appointment from the conflict check
+ * When editing, `slot.id` excludes the appointment from the conflict check
  * so an appointment can be moved within (or around) its own current slot.
  */
 export function validateAppointment(
-  draft: AppointmentDraft,
+  slot: AppointmentSlot,
   existing: Appointment[],
   clinic: Clinic,
 ): SchedulingError[] {
   const errors: SchedulingError[] = [];
-  const start = new Date(draft.start);
-  const end = new Date(draft.end);
+  const start = new Date(slot.start);
+  const end = new Date(slot.end);
 
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
     return [{ code: 'INVALID_RANGE', message: 'End time must be after start time.' }];
   }
 
-  const holiday = clinicHolidayClosure(clinic, draft.start.slice(0, 10));
+  const holiday = clinicHolidayClosure(clinic, slot.start.slice(0, 10));
   if (holiday) {
     errors.push({
       code: 'CLINIC_CLOSED_HOLIDAY',
@@ -76,8 +82,8 @@ export function validateAppointment(
 
   const conflict = existing.find(
     (appointment) =>
-      appointment.id !== draft.id &&
-      appointment.sonographerId === draft.sonographerId &&
+      appointment.id !== slot.id &&
+      appointment.sonographerId === slot.sonographerId &&
       overlaps(start, end, new Date(appointment.start), new Date(appointment.end)),
   );
 

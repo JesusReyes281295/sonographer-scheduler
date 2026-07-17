@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import type { Appointment, Clinic, Sonographer } from '../core/domain/types';
+import type { Appointment, Clinic, ConsultationType, Patient, Sonographer } from '../core/domain/types';
 
 export const sonographers: Sonographer[] = [
   { id: 's1', name: 'Alice Chen' },
@@ -26,21 +26,52 @@ export const clinics: Clinic[] = [
   { id: 'c10', name: 'Parkside Urgent Care', openTime: '07:00', closeTime: '20:00', color: '#0d9488', observesHolidays: false },
 ];
 
+// Every entry is an ultrasound study a sonographer actually performs — no other
+// imaging modality, and no appointment "reasons" (those belong in the notes).
+// Reference data for now; the management UI will make these editable.
+export const consultationTypes: ConsultationType[] = [
+  { id: 'ct1', name: 'OB ultrasound', icon: '🤰' },
+  { id: 'ct2', name: 'Abdominal ultrasound', icon: '🩺' },
+  { id: 'ct3', name: 'Vascular Doppler', icon: '🩸' },
+  { id: 'ct4', name: 'Thyroid ultrasound', icon: '🦋' },
+  { id: 'ct5', name: 'Musculoskeletal ultrasound', icon: '🦴' },
+  { id: 'ct6', name: 'Echocardiogram', icon: '🫀' },
+  { id: 'ct7', name: 'Renal ultrasound', icon: '🫘' },
+  { id: 'ct8', name: 'Breast ultrasound', icon: '🎗️' },
+];
+
+export const seedPatients: Patient[] = [
+  { id: 'p1', name: 'Maria Lopez', mrn: 'MRN-1042' },
+  { id: 'p2', name: 'James Field', mrn: 'MRN-1043' },
+  { id: 'p3', name: 'Priya Patel', mrn: 'MRN-1044' },
+  { id: 'p4', name: 'Robert King', mrn: 'MRN-1045' },
+  { id: 'p5', name: 'Susan Lee', mrn: 'MRN-1046' },
+  { id: 'p6', name: 'Thomas Ng', mrn: 'MRN-1047' },
+  { id: 'p7', name: 'Olivia Brown', mrn: 'MRN-1048' },
+  { id: 'p8', name: 'William Davis', mrn: 'MRN-1049' },
+  { id: 'p9', name: 'Nina Alvarez', mrn: 'MRN-1050' },
+  { id: 'p10', name: 'David Cohen', mrn: 'MRN-1051' },
+  { id: 'p11', name: 'George Hall', mrn: 'MRN-1052' },
+  { id: 'p12', name: 'Hannah Silva', mrn: 'MRN-1053' },
+  { id: 'p13', name: 'Ibrahim Khan', mrn: 'MRN-1054' },
+  { id: 'p14', name: 'Julia Moreau', mrn: 'MRN-1055' },
+];
+
 // Seed appointments are generated for "today" so the app always opens
 // with a populated schedule.
 const today = format(new Date(), 'yyyy-MM-dd');
 const at = (start: string, end: string) => ({ start: `${today}T${start}:00`, end: `${today}T${end}:00` });
 
 export const seedAppointments: Appointment[] = [
-  { id: 'a1', sonographerId: 's1', clinicId: 'c1', patientName: 'Maria Lopez', ...at('09:00', '10:00'), notes: 'OB ultrasound, 20 weeks' },
-  { id: 'a2', sonographerId: 's2', clinicId: 'c2', patientName: 'James Field', ...at('10:30', '11:30') },
-  { id: 'a3', sonographerId: 's1', clinicId: 'c1', patientName: 'Priya Patel', ...at('13:00', '14:00'), notes: 'Abdominal scan' },
-  { id: 'a4', sonographerId: 's4', clinicId: 'c3', patientName: 'Robert King', ...at('09:30', '10:15'), notes: 'Follow-up needed' },
-  { id: 'a5', sonographerId: 's5', clinicId: 'c5', patientName: 'Susan Lee', ...at('08:00', '09:00'), notes: 'Urgent' },
-  { id: 'a6', sonographerId: 's2', clinicId: 'c2', patientName: 'Thomas Ng', ...at('12:00', '12:45') },
-  { id: 'a7', sonographerId: 's6', clinicId: 'c7', patientName: 'Olivia Brown', ...at('14:00', '15:00'), notes: 'Thyroid scan' },
-  { id: 'a8', sonographerId: 's3', clinicId: 'c9', patientName: 'William Davis', ...at('14:30', '15:30') },
-  { id: 'a9', sonographerId: 's7', clinicId: 'c10', patientName: 'Nina Alvarez', ...at('16:00', '17:00'), notes: 'Possibly cancelled' },
-  { id: 'a10', sonographerId: 's4', clinicId: 'c1', patientName: 'David Cohen', ...at('11:00', '12:00'), notes: 'New patient' },
-  { id: 'a11', sonographerId: 's5', clinicId: 'c5', patientName: 'George Hall', ...at('10:00', '10:45') },
+  { id: 'a1', sonographerId: 's1', clinicId: 'c1', patientId: 'p1', consultationTypeId: 'ct1', ...at('09:00', '10:00'), notes: '20 weeks' },
+  { id: 'a2', sonographerId: 's2', clinicId: 'c2', patientId: 'p2', consultationTypeId: 'ct6', ...at('10:30', '11:30') },
+  { id: 'a3', sonographerId: 's1', clinicId: 'c1', patientId: 'p3', consultationTypeId: 'ct2', ...at('13:00', '14:00'), notes: 'Fasting confirmed' },
+  { id: 'a4', sonographerId: 's4', clinicId: 'c3', patientId: 'p4', consultationTypeId: 'ct5', ...at('09:30', '10:15'), notes: 'Follow-up needed' },
+  { id: 'a5', sonographerId: 's5', clinicId: 'c5', patientId: 'p5', consultationTypeId: 'ct6', ...at('08:00', '09:00'), notes: 'Urgent' },
+  { id: 'a6', sonographerId: 's2', clinicId: 'c2', patientId: 'p6', consultationTypeId: 'ct3', ...at('12:00', '12:45') },
+  { id: 'a7', sonographerId: 's6', clinicId: 'c7', patientId: 'p7', consultationTypeId: 'ct4', ...at('14:00', '15:00') },
+  { id: 'a8', sonographerId: 's3', clinicId: 'c9', patientId: 'p8', consultationTypeId: 'ct5', ...at('14:30', '15:30') },
+  { id: 'a9', sonographerId: 's7', clinicId: 'c10', patientId: 'p9', consultationTypeId: 'ct7', ...at('16:00', '17:00'), notes: 'Possibly cancelled' },
+  { id: 'a10', sonographerId: 's4', clinicId: 'c1', patientId: 'p10', consultationTypeId: 'ct2', ...at('11:00', '12:00'), notes: 'New patient' },
+  { id: 'a11', sonographerId: 's5', clinicId: 'c5', patientId: 'p11', consultationTypeId: 'ct3', ...at('10:00', '10:45') },
 ];
