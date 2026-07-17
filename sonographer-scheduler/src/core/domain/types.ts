@@ -23,6 +23,8 @@ export interface Patient {
   name: string;
   /** Medical record number. */
   mrn?: string;
+  /** Contact number — collected at booking, used for appointment reminders. */
+  phone?: string;
 }
 
 /** A type of ultrasound study a sonographer performs. */
