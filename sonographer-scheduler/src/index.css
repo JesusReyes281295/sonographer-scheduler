@@ -172,15 +172,11 @@ button:disabled {
   background: #eff6ff;
 }
 
-/* One compact line: the legend is reference material, not the main event —
-   it scrolls sideways instead of stacking rows and pushing the schedule down. */
+/* Every clinic stays visible: compact tinted chips that wrap into slim rows. */
 .legend-row {
   display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
+  align-items: flex-start;
   gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 4px;
 }
 
 .legend-row__label {
@@ -194,20 +190,45 @@ button:disabled {
 .legend {
   list-style: none;
   display: flex;
-  flex-wrap: nowrap;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 6px;
   margin: 0;
   padding: 0;
-  font-size: 13px;
-  color: #334155;
 }
 
 .legend li {
   display: flex;
+}
+
+/* Tag-style clinic chip: soft tint of the clinic's own colour. Clicking toggles
+   the clinic filter, so the legend doubles as a one-tap filter bar. */
+.legend-chip {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--clinic-color) 35%, #fff);
+  background: color-mix(in srgb, var(--clinic-color) 10%, #fff);
+  color: #0f172a;
+  font-size: 12.5px;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.legend-chip:hover {
+  background: color-mix(in srgb, var(--clinic-color) 20%, #fff);
+}
+
+.legend-chip[aria-pressed='true'] {
+  border-color: var(--clinic-color);
+  box-shadow: inset 0 0 0 1px var(--clinic-color);
+  font-weight: 600;
+}
+
+/* Chips outside the active filter fade back but stay clickable. */
+.legend-chip--off {
+  opacity: 0.45;
 }
 
 .legend__dot {
