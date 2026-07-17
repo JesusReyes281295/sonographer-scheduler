@@ -37,6 +37,26 @@ export const handlers = [
     return HttpResponse.json(db.listClinics());
   }),
 
+  http.get('/api/consultation-types', async () => {
+    await delay(LATENCY_MS);
+    return HttpResponse.json(db.listConsultationTypes());
+  }),
+
+  http.get('/api/patients', async () => {
+    await delay(LATENCY_MS);
+    return HttpResponse.json(db.listPatients());
+  }),
+
+  http.post('/api/patients', async ({ request }) => {
+    await delay(LATENCY_MS);
+    const draft = (await request.json()) as { name?: string; mrn?: string };
+    const name = draft.name?.trim();
+    if (!name) {
+      return HttpResponse.json({ message: 'Patient name is required.' }, { status: 400 });
+    }
+    return HttpResponse.json(db.createPatient({ name, mrn: draft.mrn }), { status: 201 });
+  }),
+
   http.get('/api/appointments', async ({ request }) => {
     await delay(LATENCY_MS);
     const date = new URL(request.url).searchParams.get('date');

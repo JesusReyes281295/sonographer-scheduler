@@ -9,8 +9,9 @@
  */
 
 const STORAGE_KEY = 'sonographer-scheduler:db';
-/** Bump when the persisted shape changes; data from older versions is discarded. */
-const SCHEMA_VERSION = 1;
+/** Bump when the persisted shape changes; data from older versions is discarded.
+ *  v2: appointments reference `patientId`/`consultationTypeId`, and patients are stored. */
+const SCHEMA_VERSION = 2;
 
 interface Envelope<T> {
   version: number;

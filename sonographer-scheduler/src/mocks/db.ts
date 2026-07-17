@@ -1,16 +1,20 @@
-import type { Appointment } from '../core/domain/types';
-import { clinics, seedAppointments, sonographers } from './data';
+import type { Appointment, Patient } from '../core/domain/types';
+import { clinics, consultationTypes, seedAppointments, seedPatients, sonographers } from './data';
 import { loadState, saveState } from './storage';
 
 /**
- * Shape persisted to local storage. Reference data (sonographers, clinics) is
- * static for now, so only the mutable appointments are stored.
+ * Shape persisted to local storage. Sonographers, clinics and consultation types
+ * are reference data for now, so only the collections users can change are stored.
  */
 interface DbState {
   appointments: Appointment[];
+  patients: Patient[];
 }
 
-const seedState = (): DbState => ({ appointments: structuredClone(seedAppointments) });
+const seedState = (): DbState => ({
+  appointments: structuredClone(seedAppointments),
+  patients: structuredClone(seedPatients),
+});
 
 /** Load persisted data on first import; on a fresh install, seed and persist it. */
 function initState(): DbState {
@@ -30,6 +34,16 @@ export const db = {
   listSonographers: () => [...sonographers],
   listClinics: () => [...clinics],
   getClinic: (id: string) => clinics.find((clinic) => clinic.id === id),
+  listConsultationTypes: () => [...consultationTypes],
+
+  listPatients: () => [...state.patients],
+  getPatient: (id: string) => state.patients.find((patient) => patient.id === id),
+  createPatient: (draft: Omit<Patient, 'id'>): Patient => {
+    const patient: Patient = { ...draft, id: crypto.randomUUID() };
+    state.patients.push(patient);
+    persist();
+    return patient;
+  },
 
   listAppointments: (date?: string | null) =>
     date ? state.appointments.filter((a) => a.start.startsWith(date)) : [...state.appointments],
@@ -52,7 +66,7 @@ export const db = {
     return exists;
   },
 
-  /** Restore the original sample data — used by the UI reset and between tests. */
+  /** Restore the original sample data — used between tests. */
   reset: () => {
     state = seedState();
     saveState(state);
