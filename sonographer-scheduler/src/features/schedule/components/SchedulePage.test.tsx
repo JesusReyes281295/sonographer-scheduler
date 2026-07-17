@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '../../../mocks/db';
 import { server } from '../../../mocks/server';
 import { SchedulePage } from './SchedulePage';
@@ -173,5 +173,64 @@ describe('SchedulePage', () => {
     await bookFor(user, 'Maria Lopez');
 
     expect(db.listPatients()).toHaveLength(patientsBefore);
+  });
+});
+
+describe('Managing the hospital', () => {
+  async function openManagement(user: ReturnType<typeof userEvent.setup>) {
+    renderPage();
+    await screen.findByText('Maria Lopez');
+    await user.click(screen.getByRole('button', { name: /^manage$/i }));
+    return screen.findByRole('dialog', { name: /manage your hospital/i });
+  }
+
+  it('adds a sonographer and shows it in the schedule right away', async () => {
+    const user = userEvent.setup();
+    const manage = await openManagement(user);
+
+    await user.click(within(manage).getByRole('button', { name: /^sonographers$/i }));
+    await user.click(within(manage).getByRole('button', { name: /add sonographer/i }));
+    await user.type(within(manage).getByLabelText(/name/i), 'Hugo Silva');
+    await user.click(within(manage).getByRole('button', { name: /^save$/i }));
+
+    await user.click(within(manage).getByRole('button', { name: /^close$/i }));
+
+    // Now a real column in the grid, not just a row in the dialog.
+    expect(await screen.findByText('Hugo Silva')).toBeInTheDocument();
+  });
+
+  it('refuses to delete a clinic that still has appointments', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const user = userEvent.setup();
+    const manage = await openManagement(user);
+
+    // Downtown Imaging is used by the seeded appointments.
+    const row = within(manage).getByText('Downtown Imaging').closest('li') as HTMLElement;
+    await user.click(within(row).getByRole('button', { name: /delete/i }));
+
+    expect(await within(manage).findByRole('alert')).toHaveTextContent(/still use/i);
+    expect(db.listClinics().some((c) => c.name === 'Downtown Imaging')).toBe(true);
+
+    confirm.mockRestore();
+  });
+
+  it('renames a study type and the schedule picks it up', async () => {
+    const user = userEvent.setup();
+    const manage = await openManagement(user);
+
+    await user.click(within(manage).getByRole('button', { name: /^study types$/i }));
+    const row = within(manage).getByText('OB ultrasound').closest('li') as HTMLElement;
+    await user.click(within(row).getByRole('button', { name: /edit/i }));
+
+    const nameInput = within(manage).getByLabelText(/name/i);
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Obstetric scan');
+    await user.click(within(manage).getByRole('button', { name: /^save$/i }));
+
+    await user.click(within(manage).getByRole('button', { name: /^close$/i }));
+
+    expect(
+      await screen.findByRole('button', { name: /Maria Lopez, Obstetric scan/i }),
+    ).toBeInTheDocument();
   });
 });
