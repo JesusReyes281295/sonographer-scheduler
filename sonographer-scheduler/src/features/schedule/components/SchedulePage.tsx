@@ -21,10 +21,13 @@ import { weekDays } from '../weekLayout';
 import { AppointmentFormDialog } from './AppointmentFormDialog';
 import type { AppointmentFormValues } from './AppointmentFormDialog';
 import { ManagementDialog } from './ManagementDialog';
+import { PrintableAppointment } from './PrintableAppointment';
 import { ScheduleGrid } from './ScheduleGrid';
 import { ScheduleFilters } from './ScheduleFilters';
 import { EMPTY_FILTERS, type Filters } from '../filters';
 import { WeekGrid } from './WeekGrid';
+import { TutorialTour, type TourStep } from './TutorialTour';
+import { AboutDialog } from './AboutDialog';
 
 type View = 'day' | 'week';
 
@@ -37,12 +40,50 @@ const toDateParam = (date: Date) => format(date, 'yyyy-MM-dd');
 /** Noon avoids any DST edge cases when shifting whole days. */
 const atNoon = (date: string) => new Date(`${date}T12:00:00`);
 
+const TOUR_STEPS: TourStep[] = [
+  {
+    title: 'Welcome 👋',
+    body: 'This quick tutorial shows you around the schedule. Use Next and Back (or the arrow keys), and press Escape to leave at any time.',
+  },
+  {
+    target: '[data-tour="view"]',
+    title: 'Day or week',
+    body: 'Switch between a single day and the whole week here. Your choice is remembered next time you open the app.',
+  },
+  {
+    target: '[data-tour="filters"]',
+    title: 'Filter the schedule',
+    body: 'Show only certain sonographers or clinics. With nothing selected, everything is shown.',
+  },
+  {
+    target: 'section[aria-label*="schedule"]',
+    title: 'Book, edit, and drag',
+    body: 'Click an empty slot to book, click an appointment to edit it, and drag a card to reschedule — to another time, another sonographer, or (in the week view) another day.',
+  },
+  {
+    target: '[data-tour="new"]',
+    title: 'New appointment',
+    body: 'Prefer a form? Start a new appointment here and pick the patient, study type, time and clinic.',
+  },
+  {
+    target: '[data-tour="manage"]',
+    title: 'Manage your hospital',
+    body: 'Add or edit clinics, sonographers, patients and study types in the Manage panel — the schedule updates right away.',
+  },
+  {
+    title: "You're all set 🎉",
+    body: 'That’s the tour. Reopen it anytime from the Tutorial button. Happy scheduling!',
+  },
+];
+
 export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
   const [view, setView] = usePersistentState<View>('scheduler.view', 'day');
   const [filters, setFilters] = usePersistentState<Filters>('scheduler.filters', EMPTY_FILTERS);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [managing, setManaging] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   /** Why the last drag-and-drop move was refused (null when there's nothing to show). */
   const [moveError, setMoveError] = useState<string | null>(null);
 
@@ -191,76 +232,93 @@ export function SchedulePage() {
   return (
     <main className="page">
       <header className="toolbar">
-        <h1>Sonographer schedule</h1>
-
-        <div className="view-toggle">
-          <button
-            type="button"
-            className={`view-toggle__btn${view === 'day' ? ' is-active' : ''}`}
-            aria-pressed={view === 'day'}
-            onClick={() => setView('day')}
-          >
-            Day
-          </button>
-          <button
-            type="button"
-            className={`view-toggle__btn${view === 'week' ? ' is-active' : ''}`}
-            aria-pressed={view === 'week'}
-            onClick={() => setView('week')}
-          >
-            Week
-          </button>
+        <div className="toolbar__top">
+          <h1>Sonographer schedule</h1>
+          <div className="toolbar__actions">
+            <button type="button" className="button--ghost" onClick={() => setAboutOpen(true)}>
+              Learn more about Sonographer Scheduler
+            </button>
+            <button type="button" className="button--ghost" onClick={() => setTourOpen(true)}>
+              Tutorial
+            </button>
+            <button type="button" data-tour="manage" onClick={() => setManaging(true)}>
+              Manage
+            </button>
+            <button
+              type="button"
+              data-tour="new"
+              className="button--primary"
+              onClick={() => setDialog({ mode: 'create', initial: {} })}
+            >
+              New appointment
+            </button>
+          </div>
         </div>
 
-        <nav className="toolbar__nav" aria-label={view === 'week' ? 'Change week' : 'Change day'}>
-          <button type="button" onClick={() => shiftDays(-step)}>
-            ← Previous
-          </button>
-          <button type="button" onClick={() => setDate(toDateParam(new Date()))}>
-            Today
-          </button>
-          <button type="button" onClick={() => shiftDays(step)}>
-            Next →
-          </button>
-        </nav>
+        <div className="toolbar__controls">
+          <div className="view-toggle" data-tour="view">
+            <button
+              type="button"
+              className={`view-toggle__btn${view === 'day' ? ' is-active' : ''}`}
+              aria-pressed={view === 'day'}
+              onClick={() => setView('day')}
+            >
+              Day
+            </button>
+            <button
+              type="button"
+              className={`view-toggle__btn${view === 'week' ? ' is-active' : ''}`}
+              aria-pressed={view === 'week'}
+              onClick={() => setView('week')}
+            >
+              Week
+            </button>
+          </div>
 
-        <p className="toolbar__date">
-          {view === 'week'
-            ? `${format(atNoon(days[0]), 'MMM d')} – ${format(atNoon(days[6]), 'MMM d, yyyy')}`
-            : format(atNoon(date), 'EEEE, MMMM d, yyyy')}
-        </p>
+          <nav className="toolbar__nav" aria-label={view === 'week' ? 'Change week' : 'Change day'}>
+            <button type="button" onClick={() => shiftDays(-step)}>
+              ← Previous
+            </button>
+            <button type="button" onClick={() => setDate(toDateParam(new Date()))}>
+              Today
+            </button>
+            <button type="button" onClick={() => shiftDays(step)}>
+              Next →
+            </button>
+          </nav>
 
-        {sonographers.data && clinics.data && (
-          <ScheduleFilters
-            sonographers={sonographers.data}
-            clinics={clinics.data}
-            value={filters}
-            onChange={setFilters}
-          />
-        )}
+          <p className="toolbar__date">
+            {view === 'week'
+              ? `${format(atNoon(days[0]), 'MMM d')} – ${format(atNoon(days[6]), 'MMM d, yyyy')}`
+              : format(atNoon(date), 'EEEE, MMMM d, yyyy')}
+          </p>
 
-        <button type="button" onClick={() => setManaging(true)}>
-          Manage
-        </button>
-        <button
-          type="button"
-          className="button--primary"
-          onClick={() => setDialog({ mode: 'create', initial: {} })}
-        >
-          New appointment
-        </button>
+          {sonographers.data && clinics.data && (
+            <div className="toolbar__filters">
+              <ScheduleFilters
+                sonographers={sonographers.data}
+                clinics={clinics.data}
+                value={filters}
+                onChange={setFilters}
+              />
+            </div>
+          )}
+        </div>
       </header>
 
       {clinics.data && (
-        <ul className="legend" aria-label="Clinics and operating hours">
-          {clinics.data.map((clinic) => (
-            <li key={clinic.id}>
-              <span className="legend__dot" style={{ backgroundColor: clinic.color }} aria-hidden="true" />
-              {clinic.icon && <span aria-hidden="true">{clinic.icon} </span>}
-              {clinic.name} ({clinic.openTime}–{clinic.closeTime})
-            </li>
-          ))}
-        </ul>
+        <div className="legend-row">
+          <span className="legend-row__label">Clinics</span>
+          <ul className="legend" aria-label="Clinics and their operating hours">
+            {clinics.data.map((clinic) => (
+              <li key={clinic.id}>
+                <span className="legend__dot" style={{ backgroundColor: clinic.color }} aria-hidden="true" />
+                {clinic.icon && <span aria-hidden="true">{clinic.icon} </span>}
+                {clinic.name} ({clinic.openTime}–{clinic.closeTime})
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {loadError && (
@@ -344,6 +402,20 @@ export function SchedulePage() {
       )}
 
       {managing && <ManagementDialog onClose={() => setManaging(false)} />}
+
+      {tourOpen && <TutorialTour steps={TOUR_STEPS} onClose={() => setTourOpen(false)} />}
+
+      {aboutOpen && <AboutDialog onClose={() => setAboutOpen(false)} />}
+
+      {dialog?.mode === 'edit' && referenceReady && (
+        <PrintableAppointment
+          appointment={dialog.appointment}
+          patients={patients.data!}
+          sonographers={sonographers.data!}
+          clinics={clinics.data!}
+          consultationTypes={consultationTypes.data!}
+        />
+      )}
 
       {dialog && referenceReady && (
         <AppointmentFormDialog

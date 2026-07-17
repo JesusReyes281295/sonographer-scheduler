@@ -314,6 +314,11 @@ export function AppointmentFormDialog({
               Delete
             </button>
           )}
+          {mode === 'edit' && (
+            <button type="button" onClick={() => window.print()} disabled={submitting}>
+              Print
+            </button>
+          )}
           <span className={styles.spacer} />
           <button type="button" onClick={onClose} disabled={submitting}>
             Cancel

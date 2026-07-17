@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { format } from 'date-fns';
 import type {
   Appointment,
@@ -120,13 +121,17 @@ export function WeekGrid({
                     key={appointment.id}
                     type="button"
                     className={`${styles.appointment}${drag.draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
-                    style={{
-                      top,
-                      height,
-                      left: `calc(${(lane / lanes) * 100}% + 2px)`,
-                      width: `calc(${100 / lanes}% - 4px)`,
-                      backgroundColor: clinic?.color,
-                    }}
+                    style={
+                      {
+                        top,
+                        height,
+                        // Lane position as CSS vars so :hover/:focus can expand the card
+                        // to the full column width (see the CSS) without !important.
+                        '--lane-left': `calc(${(lane / lanes) * 100}% + 2px)`,
+                        '--lane-width': `calc(${100 / lanes}% - 4px)`,
+                        backgroundColor: clinic?.color,
+                      } as CSSProperties & Record<`--${string}`, string>
+                    }
                     onPointerDown={(event) =>
                       drag.onPointerDown(event, appointment.id, `${patientName} · ${timeRange}`, clinic?.color)
                     }
@@ -137,10 +142,7 @@ export function WeekGrid({
                     title={`${patientName} · ${type?.name ?? 'Consultation'} · ${timeRange} · ${sonographerName} · ${clinic?.name ?? ''}`}
                     aria-label={`Edit appointment: ${patientName}, ${type?.name ?? 'consultation'}, ${weekday} ${timeRange}, ${clinic?.name ?? 'unknown clinic'}, with ${sonographerName}`}
                   >
-                    <strong>
-                      {type && <span aria-hidden="true">{type.icon} </span>}
-                      {patientName}
-                    </strong>
+                    <strong>{patientName}</strong>
                   </button>
                 );
               })}

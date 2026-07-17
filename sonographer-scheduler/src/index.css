@@ -22,14 +22,41 @@ body {
 
 .toolbar {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toolbar__top {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
 .toolbar h1 {
   font-size: 22px;
-  margin: 0 auto 0 0;
+  margin: 0;
+}
+
+.toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.toolbar__filters {
+  margin-left: auto;
 }
 
 .toolbar__nav {
@@ -117,6 +144,33 @@ button:disabled {
   background: #fef2f2;
 }
 
+/* Secondary/low-emphasis actions (Learn more, Tutorial) — quieter than the rest. */
+.button--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.button--ghost:hover {
+  background: #eff6ff;
+}
+
+.legend-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.legend-row__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
 .legend {
   list-style: none;
   display: flex;
@@ -189,6 +243,57 @@ button:disabled {
   color: #1e40af;
   border-radius: 10px;
   font-size: 14px;
+}
+
+/* Print: hide the whole app and show only the appointment summary. */
+.print-appointment {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-appointment,
+  .print-appointment * {
+    visibility: visible;
+  }
+  .print-appointment {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 40px;
+    color: #000;
+    font-size: 14px;
+  }
+  .print-appointment h1 {
+    font-size: 22px;
+    margin: 0 0 20px;
+  }
+  .print-appointment dl {
+    margin: 0;
+  }
+  .print-appointment dl > div {
+    display: flex;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .print-appointment dt {
+    width: 150px;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .print-appointment dd {
+    margin: 0;
+  }
+  .print-appointment__footer {
+    margin-top: 28px;
+    color: #666;
+    font-size: 12px;
+  }
 }
 
 /* Clone that follows the pointer while dragging an appointment (day or week grid);
