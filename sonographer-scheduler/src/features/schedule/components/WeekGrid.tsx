@@ -97,6 +97,7 @@ export function WeekGrid({
           const noon = atNoon(day);
           const weekday = format(noon, 'EEEE');
           const isWeekend = noon.getDay() === 0 || noon.getDay() === 6;
+          const isPastDay = day < today;
 
           return (
             <div
@@ -137,12 +138,14 @@ export function WeekGrid({
                   MIN_CARD_HEIGHT,
                 );
                 const timeRange = `${appointment.start.slice(11, 16)}–${appointment.end.slice(11, 16)}`;
+                const isPast =
+                  isPastDay || (day === today && minutesOfDay(end) <= nowMinutes);
 
                 return (
                   <button
                     key={appointment.id}
                     type="button"
-                    className={`${styles.appointment}${drag.draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
+                    className={`${styles.appointment}${isPast ? ` ${styles.past}` : ''}${drag.draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
                     style={
                       {
                         top,

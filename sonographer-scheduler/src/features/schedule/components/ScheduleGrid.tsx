@@ -55,7 +55,9 @@ export function ScheduleGrid({
   const wrapperRef = useRef<HTMLElement>(null);
 
   const nowMinutes = useNowMinutes();
-  const isToday = date === format(new Date(), 'yyyy-MM-dd');
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const isToday = date === today;
+  const isPastDay = date < today;
   const nowTop = (nowMinutes - DAY_START_MINUTES) * PX_PER_MINUTE;
   const showNow = isToday && nowTop >= 0 && nowTop <= DAY_HEIGHT;
 
@@ -146,12 +148,13 @@ export function ScheduleGrid({
                 // Short appointments only have room for the name; the full details
                 // stay available via the tooltip and the aria-label.
                 const showDetails = height >= DETAILS_MIN_HEIGHT;
+                const isPast = isPastDay || (isToday && minutesOfDay(end) <= nowMinutes);
 
                 return (
                   <button
                     key={appointment.id}
                     type="button"
-                    className={`${styles.appointment}${drag.draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
+                    className={`${styles.appointment}${isPast ? ` ${styles.past}` : ''}${drag.draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
                     style={{ top, height, backgroundColor: clinic?.color }}
                     onPointerDown={(event) =>
                       drag.onPointerDown(event, appointment.id, `${patientName} · ${timeRange}`, clinic?.color)
