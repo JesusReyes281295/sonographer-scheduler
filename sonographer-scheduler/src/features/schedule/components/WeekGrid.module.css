@@ -8,8 +8,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 56px repeat(7, minmax(110px, 1fr));
-  min-width: 760px;
+  grid-template-columns: 56px repeat(7, minmax(140px, 1fr));
+  min-width: 900px;
 }
 
 .corner,
@@ -80,26 +80,37 @@
 
 .appointment {
   position: absolute;
+  left: var(--lane-left);
+  width: var(--lane-width);
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   border: none;
   border-radius: 5px;
-  padding: 3px 5px;
+  padding: 3px 6px;
   color: #fff;
-  font-size: 11px;
-  line-height: 1.2;
+  font-size: 12px;
+  line-height: 1.25;
   text-align: left;
   cursor: grab;
   touch-action: none;
   user-select: none;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 0.1s ease;
 }
 
-.appointment:hover {
-  filter: brightness(1.08);
+/* Overlapping cards get thin. On hover or keyboard focus, lift the card to the
+   full column width above its neighbours so the whole name becomes readable. */
+.appointment:not(.dragging):hover,
+.appointment:not(.dragging):focus-visible {
+  left: 2px;
+  right: 2px;
+  width: auto;
+  z-index: 6;
+  filter: brightness(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 .appointment:focus-visible {
@@ -108,7 +119,7 @@
 }
 
 .appointment > strong {
-  font-size: 11px;
+  font-size: 12px;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
