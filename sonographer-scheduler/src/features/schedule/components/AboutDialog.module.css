@@ -1,0 +1,163 @@
+.dialog {
+  position: relative;
+  width: min(940px, 94vw);
+  max-height: 92vh;
+  margin: auto;
+  padding: 0;
+  border: none;
+  border-radius: 16px;
+  overflow: auto;
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+}
+
+.dialog::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.hero {
+  padding: 48px 40px 40px;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  color: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.title {
+  margin: 0 0 14px;
+  font-size: 30px;
+  line-height: 1.15;
+  max-width: 620px;
+}
+
+.lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 620px;
+  opacity: 0.95;
+}
+
+.section {
+  padding: 32px 40px;
+}
+
+.future {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sectionTitle {
+  margin: 0 0 4px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7c3aed;
+  background: #ede9fe;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.sectionLede {
+  margin: 0 0 20px;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.futureCard {
+  border-style: dashed;
+  border-color: #c4b5fd;
+}
+
+.icon {
+  display: block;
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.cardBody {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 40px;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 560px) {
+  .hero {
+    padding: 40px 20px 28px;
+  }
+  .section,
+  .footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .title {
+    font-size: 24px;
+  }
+}
