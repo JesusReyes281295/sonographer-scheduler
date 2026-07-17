@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?logo=vite&logoColor=white)
-![Vitest](https://img.shields.io/badge/tests-44%20passing-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/tests-47%20passing-6E9F18?logo=vitest&logoColor=white)
 ![MSW](https://img.shields.io/badge/API-mocked%20with%20MSW-FF6A33)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -59,7 +59,7 @@ npm run dev          # opens the app; the mock API runs right in your browser
 Other handy commands (from inside `sonographer-scheduler/`):
 
 ```bash
-npm test             # run the test suite (44 tests: domain rules, holidays, persistence + UI flows)
+npm test             # run the test suite (47 tests: domain rules, holidays, persistence + UI flows)
 npm run lint         # lint with accessibility checks
 npm run build        # type-check + production build
 ```

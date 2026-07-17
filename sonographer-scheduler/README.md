@@ -14,6 +14,7 @@ A small daily-scheduling application for sonographers and clinics, built with **
 - **Optimistic UI updates** with automatic rollback when the server rejects a change.
 - **Set it up for your own hospital** — a **Manage** panel to add, edit and delete clinics (hours, colour, icon, holiday policy), sonographers, patients and study types, without touching code. Anything still used by an appointment can't be deleted, and changes show up in the schedule immediately.
 - **Local-first persistence** — the schedule *and your setup* are saved in the browser (`localStorage`) and survive reloads, with no database to install.
+- **The sample day always follows you** — the demo schedule re-anchors to the current day every time the app opens, so whoever tries it sees a full day for *their* today, whether that's now or weeks from now. Your own edits shift along with it.
 - Unit tests for the domain rules and integration tests for the critical UI flows.
 
 ## Getting started

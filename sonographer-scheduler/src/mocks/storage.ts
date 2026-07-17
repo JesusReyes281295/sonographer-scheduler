@@ -11,8 +11,9 @@
 const STORAGE_KEY = 'sonographer-scheduler:db';
 /** Bump when the persisted shape changes; data from older versions is discarded.
  *  v2: appointments reference `patientId`/`consultationTypeId`, and patients are stored.
- *  v3: sonographers, clinics and study types are editable, so they are stored too. */
-const SCHEMA_VERSION = 3;
+ *  v3: sonographers, clinics and study types are editable, so they are stored too.
+ *  v4: an `anchorDate` records which day the schedule is currently sitting on. */
+export const SCHEMA_VERSION = 4;
 
 interface Envelope<T> {
   version: number;

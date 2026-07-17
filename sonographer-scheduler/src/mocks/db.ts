@@ -1,5 +1,13 @@
+import { addDays, differenceInCalendarDays, format } from 'date-fns';
 import type { Appointment, Clinic, ConsultationType, Patient, Sonographer } from '../core/domain/types';
-import { clinics, consultationTypes, seedAppointments, seedPatients, sonographers } from './data';
+import {
+  clinics,
+  consultationTypes,
+  seedAnchorDate,
+  seedAppointments,
+  seedPatients,
+  sonographers,
+} from './data';
 import { loadState, saveState } from './storage';
 
 /**
@@ -7,6 +15,8 @@ import { loadState, saveState } from './storage';
  * here, so a customised setup survives a reload.
  */
 interface DbState {
+  /** The day the appointments currently sit on ("yyyy-MM-dd"). */
+  anchorDate: string;
   appointments: Appointment[];
   patients: Patient[];
   sonographers: Sonographer[];
@@ -14,7 +24,14 @@ interface DbState {
   consultationTypes: ConsultationType[];
 }
 
+const todayStr = () => format(new Date(), 'yyyy-MM-dd');
+/** Noon avoids DST edge cases when doing whole-day arithmetic. */
+const atNoon = (day: string) => new Date(`${day}T12:00:00`);
+const shiftDay = (iso: string, days: number) =>
+  `${format(addDays(atNoon(iso.slice(0, 10)), days), 'yyyy-MM-dd')}${iso.slice(10)}`;
+
 const seedState = (): DbState => ({
+  anchorDate: seedAnchorDate,
   appointments: structuredClone(seedAppointments),
   patients: structuredClone(seedPatients),
   sonographers: structuredClone(sonographers),
@@ -23,24 +40,47 @@ const seedState = (): DbState => ({
 });
 
 /**
+ * Move the whole schedule so its anchor day lands on `today`. This keeps the
+ * sample data on the day the app is opened — whether that's today or weeks from
+ * now — instead of leaving it frozen on the day it was first seeded. User edits
+ * shift along with it, so nothing is lost.
+ */
+function anchorToToday(state: DbState, today: string): DbState {
+  const offset = differenceInCalendarDays(atNoon(today), atNoon(state.anchorDate));
+  if (offset === 0) return state;
+  return {
+    ...state,
+    anchorDate: today,
+    appointments: state.appointments.map((a) => ({
+      ...a,
+      start: shiftDay(a.start, offset),
+      end: shiftDay(a.end, offset),
+    })),
+  };
+}
+
+/**
  * Load persisted data on first import; on a fresh install, seed and persist it.
  *
  * Persisted data is overlaid on a complete seed, so a collection added in a later
  * schema can never come back `undefined` from an older browser payload (which
  * would crash the app on load). The version guard in `storage` handles wholly
- * incompatible data; this is the belt-and-suspenders for a partial shape.
+ * incompatible data; this is the belt-and-suspenders for a partial shape. Finally
+ * the schedule is re-anchored to today so it's never empty on the day it's opened.
  */
 function initState(): DbState {
   const seeded = seedState();
   const persisted = loadState<Partial<DbState>>();
-  const state: DbState = {
+  const merged: DbState = {
+    anchorDate: persisted?.anchorDate ?? seeded.anchorDate,
     appointments: persisted?.appointments ?? seeded.appointments,
     patients: persisted?.patients ?? seeded.patients,
     sonographers: persisted?.sonographers ?? seeded.sonographers,
     clinics: persisted?.clinics ?? seeded.clinics,
     consultationTypes: persisted?.consultationTypes ?? seeded.consultationTypes,
   };
-  saveState(state); // persist a fresh seed, and heal any partial data in place
+  const state = anchorToToday(merged, todayStr());
+  saveState(state); // persist the fresh/healed/re-anchored data in place
   return state;
 }
 

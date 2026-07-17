@@ -57,10 +57,13 @@ export const seedPatients: Patient[] = [
   { id: 'p14', name: 'Julia Moreau', mrn: 'MRN-1055' },
 ];
 
-// Seed appointments are generated for "today" so the app always opens
-// with a populated schedule.
-const today = format(new Date(), 'yyyy-MM-dd');
-const at = (start: string, end: string) => ({ start: `${today}T${start}:00`, end: `${today}T${end}:00` });
+// Seed appointments are generated for "today" so the app always opens with a
+// populated schedule. The db re-anchors them to the current day on later opens.
+export const seedAnchorDate = format(new Date(), 'yyyy-MM-dd');
+const at = (start: string, end: string) => ({
+  start: `${seedAnchorDate}T${start}:00`,
+  end: `${seedAnchorDate}T${end}:00`,
+});
 
 export const seedAppointments: Appointment[] = [
   { id: 'a1', sonographerId: 's1', clinicId: 'c1', patientId: 'p1', consultationTypeId: 'ct1', ...at('09:00', '10:00'), notes: '20 weeks' },
