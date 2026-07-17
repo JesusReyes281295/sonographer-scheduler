@@ -1,22 +1,45 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { clinicHolidayClosure, validateAppointment } from '../../../core/domain/scheduling';
-import type { Appointment, AppointmentDraft, Clinic, Sonographer } from '../../../core/domain/types';
+import type {
+  Appointment,
+  Clinic,
+  ConsultationType,
+  Patient,
+  Sonographer,
+} from '../../../core/domain/types';
 import styles from './AppointmentFormDialog.module.css';
 
 /** One-tap note shortcuts so the front desk doesn't retype common annotations. */
 const NOTE_SUGGESTIONS = ['Urgent', 'Possibly cancelled', 'Follow-up needed', 'New patient', 'Bring prior scans'];
 
+/**
+ * What the form emits. The patient is a *name*, not an id: the front desk may type
+ * someone who isn't registered yet, and the page turns it into a patient record.
+ */
+export interface AppointmentFormValues {
+  id?: string;
+  patientName: string;
+  sonographerId: string;
+  clinicId: string;
+  consultationTypeId: string;
+  start: string;
+  end: string;
+  notes?: string;
+}
+
 interface AppointmentFormDialogProps {
   mode: 'create' | 'edit';
   /** Currently displayed day, "yyyy-MM-dd" — default for new appointments. */
   date: string;
-  initial: Partial<Appointment>;
+  initial: Partial<AppointmentFormValues>;
   sonographers: Sonographer[];
   clinics: Clinic[];
+  patients: Patient[];
+  consultationTypes: ConsultationType[];
   /** Appointments of the visible day, used for client-side conflict validation. */
   appointments: Appointment[];
-  onSubmit: (draft: AppointmentDraft) => Promise<void>;
+  onSubmit: (values: AppointmentFormValues) => Promise<void>;
   onDelete?: () => Promise<void>;
   onClose: () => void;
 }
@@ -29,6 +52,8 @@ export function AppointmentFormDialog({
   initial,
   sonographers,
   clinics,
+  patients,
+  consultationTypes,
   appointments,
   onSubmit,
   onDelete,
@@ -42,6 +67,9 @@ export function AppointmentFormDialog({
   const [patientName, setPatientName] = useState(initial.patientName ?? '');
   const [sonographerId, setSonographerId] = useState(initial.sonographerId ?? sonographers[0]?.id ?? '');
   const [clinicId, setClinicId] = useState(initial.clinicId ?? clinics[0]?.id ?? '');
+  const [consultationTypeId, setConsultationTypeId] = useState(
+    initial.consultationTypeId ?? consultationTypes[0]?.id ?? '',
+  );
   const [day, setDay] = useState(initial.start ? initial.start.slice(0, 10) : date);
   const [startTime, setStartTime] = useState(timeOf(initial.start, '09:00'));
   const [endTime, setEndTime] = useState(timeOf(initial.end, '10:00'));
@@ -72,11 +100,12 @@ export function AppointmentFormDialog({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    const draft: AppointmentDraft = {
+    const values: AppointmentFormValues = {
       id: initial.id,
       patientName: patientName.trim(),
       sonographerId,
       clinicId,
+      consultationTypeId,
       start: `${day}T${startTime}:00`,
       end: `${day}T${endTime}:00`,
       notes: notes.trim() || undefined,
@@ -84,8 +113,13 @@ export function AppointmentFormDialog({
 
     // Validate locally first for instant feedback; the mock server enforces
     // the same rules, so anything that slips through is still rejected.
-    const clinic = clinics.find((c) => c.id === clinicId);
-    const validationErrors = clinic ? validateAppointment(draft, appointments, clinic) : [];
+    const validationErrors = selectedClinic
+      ? validateAppointment(
+          { id: values.id, sonographerId, start: values.start, end: values.end },
+          appointments,
+          selectedClinic,
+        )
+      : [];
     if (validationErrors.length > 0) {
       setErrors(validationErrors.map((e) => e.message));
       return;
@@ -94,7 +128,7 @@ export function AppointmentFormDialog({
     setSubmitting(true);
     setErrors([]);
     try {
-      await onSubmit(draft);
+      await onSubmit(values);
       onClose();
     } catch (error) {
       setErrors([error instanceof Error ? error.message : 'Something went wrong. Please try again.']);
@@ -138,11 +172,36 @@ export function AppointmentFormDialog({
           <label htmlFor={`${formId}-patient`}>Patient name</label>
           <input
             id={`${formId}-patient`}
+            list={`${formId}-patient-options`}
             value={patientName}
             onChange={(e) => setPatientName(e.target.value)}
             required
             maxLength={80}
+            autoComplete="off"
           />
+          <datalist id={`${formId}-patient-options`}>
+            {patients.map((patient) => (
+              // In a datalist the value is what the user sees and picks; aria-label
+              // just spells that out for tooling.
+              <option key={patient.id} value={patient.name} aria-label={patient.name} />
+            ))}
+          </datalist>
+          <p className={styles.hint}>Pick an existing patient, or type a new name to register them.</p>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor={`${formId}-type`}>Consultation type</label>
+          <select
+            id={`${formId}-type`}
+            value={consultationTypeId}
+            onChange={(e) => setConsultationTypeId(e.target.value)}
+          >
+            {consultationTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.icon} {type.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.row}>

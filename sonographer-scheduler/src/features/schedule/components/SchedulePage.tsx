@@ -5,12 +5,20 @@ import { buildLocalIso } from '../../../core/domain/time';
 import { ErrorBanner } from '../../../shared/components/ErrorBanner';
 import { Spinner } from '../../../shared/components/Spinner';
 import { useAppointmentMutations } from '../hooks/useAppointmentMutations';
-import { useAppointments, useClinics, useSonographers } from '../hooks/useScheduleData';
+import {
+  useAppointments,
+  useClinics,
+  useConsultationTypes,
+  useCreatePatient,
+  usePatients,
+  useSonographers,
+} from '../hooks/useScheduleData';
 import { AppointmentFormDialog } from './AppointmentFormDialog';
+import type { AppointmentFormValues } from './AppointmentFormDialog';
 import { ScheduleGrid } from './ScheduleGrid';
 
 type DialogState =
-  | { mode: 'create'; initial: Partial<Appointment> }
+  | { mode: 'create'; initial: Partial<AppointmentFormValues> }
   | { mode: 'edit'; appointment: Appointment }
   | null;
 
@@ -24,15 +32,48 @@ export function SchedulePage() {
 
   const sonographers = useSonographers();
   const clinics = useClinics();
+  const patients = usePatients();
+  const consultationTypes = useConsultationTypes();
   const appointments = useAppointments(date);
   const mutations = useAppointmentMutations(date);
+  const createPatient = useCreatePatient();
 
-  const isLoading = sonographers.isPending || clinics.isPending || appointments.isPending;
-  const loadError = sonographers.error ?? clinics.error ?? appointments.error;
+  const isLoading =
+    sonographers.isPending ||
+    clinics.isPending ||
+    patients.isPending ||
+    consultationTypes.isPending ||
+    appointments.isPending;
+  const loadError =
+    sonographers.error ??
+    clinics.error ??
+    patients.error ??
+    consultationTypes.error ??
+    appointments.error;
 
   const changeDay = (offset: number) => setDate((d) => toDateParam(addDays(atNoon(d), offset)));
 
-  const handleSubmit = async (draft: AppointmentDraft) => {
+  /** Reuse an existing patient by name, or register a new one on the fly. */
+  const resolvePatientId = async (name: string): Promise<string> => {
+    const trimmed = name.trim();
+    const existing = patients.data?.find((p) => p.name.toLowerCase() === trimmed.toLowerCase());
+    if (existing) return existing.id;
+    const created = await createPatient.mutateAsync(trimmed);
+    return created.id;
+  };
+
+  const handleSubmit = async (values: AppointmentFormValues) => {
+    const patientId = await resolvePatientId(values.patientName);
+    const draft: AppointmentDraft = {
+      patientId,
+      consultationTypeId: values.consultationTypeId,
+      sonographerId: values.sonographerId,
+      clinicId: values.clinicId,
+      start: values.start,
+      end: values.end,
+      notes: values.notes,
+    };
+
     if (dialog?.mode === 'edit') {
       await mutations.update.mutateAsync({ ...draft, id: dialog.appointment.id });
     } else {
@@ -45,6 +86,23 @@ export function SchedulePage() {
       await mutations.remove.mutateAsync(dialog.appointment.id);
     }
   };
+
+  const formInitial: Partial<AppointmentFormValues> =
+    dialog?.mode === 'edit'
+      ? {
+          id: dialog.appointment.id,
+          patientName: patients.data?.find((p) => p.id === dialog.appointment.patientId)?.name ?? '',
+          sonographerId: dialog.appointment.sonographerId,
+          clinicId: dialog.appointment.clinicId,
+          consultationTypeId: dialog.appointment.consultationTypeId,
+          start: dialog.appointment.start,
+          end: dialog.appointment.end,
+          notes: dialog.appointment.notes,
+        }
+      : (dialog?.initial ?? {});
+
+  const isReady =
+    sonographers.data && clinics.data && patients.data && consultationTypes.data && appointments.data;
 
   return (
     <main className="page">
@@ -88,6 +146,8 @@ export function SchedulePage() {
           onRetry={() => {
             void sonographers.refetch();
             void clinics.refetch();
+            void patients.refetch();
+            void consultationTypes.refetch();
             void appointments.refetch();
           }}
         />
@@ -95,7 +155,7 @@ export function SchedulePage() {
 
       {isLoading && !loadError && <Spinner label="Loading schedule…" />}
 
-      {!isLoading && !loadError && sonographers.data && clinics.data && appointments.data && (
+      {!isLoading && !loadError && isReady && (
         <>
           {appointments.data.length === 0 && (
             <p className="empty-state">
@@ -105,6 +165,8 @@ export function SchedulePage() {
           <ScheduleGrid
             sonographers={sonographers.data}
             clinics={clinics.data}
+            patients={patients.data}
+            consultationTypes={consultationTypes.data}
             appointments={appointments.data}
             onSlotClick={(sonographerId, startMinutes) =>
               setDialog({
@@ -121,13 +183,15 @@ export function SchedulePage() {
         </>
       )}
 
-      {dialog && sonographers.data && clinics.data && appointments.data && (
+      {dialog && isReady && (
         <AppointmentFormDialog
           mode={dialog.mode}
           date={date}
-          initial={dialog.mode === 'edit' ? dialog.appointment : dialog.initial}
+          initial={formInitial}
           sonographers={sonographers.data}
           clinics={clinics.data}
+          patients={patients.data}
+          consultationTypes={consultationTypes.data}
           appointments={appointments.data}
           onSubmit={handleSubmit}
           onDelete={dialog.mode === 'edit' ? handleDelete : undefined}
