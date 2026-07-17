@@ -20,8 +20,3 @@ export const appointmentsApi = {
     }),
   remove: (id: string) => http<void>(`/api/appointments/${id}`, { method: 'DELETE' }),
 };
-
-export const dataApi = {
-  /** Restore the original sample data, discarding locally persisted changes. */
-  reset: () => http<void>('/api/reset', { method: 'POST' }),
-};
