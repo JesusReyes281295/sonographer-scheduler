@@ -1,6 +1,6 @@
 import { getUsHoliday } from './holidays';
 import type { Appointment, AppointmentDraft, Clinic } from './types';
-import { minutesOfDay, timeToMinutes } from './time';
+import { buildLocalIso, minutesOfDay, timeToMinutes } from './time';
 
 export type SchedulingErrorCode =
   | 'INVALID_RANGE'
@@ -95,4 +95,25 @@ export function validateAppointment(
   }
 
   return errors;
+}
+
+/**
+ * Moves an appointment to a new sonographer and start time (minutes since
+ * midnight), preserving its duration and calendar day. Pure geometry — it does
+ * not enforce any rule; feed the result to `validateAppointment` before saving.
+ */
+export function computeMovedSlot(
+  appointment: Appointment,
+  sonographerId: string,
+  startMinutes: number,
+): AppointmentSlot {
+  const durationMinutes =
+    (new Date(appointment.end).getTime() - new Date(appointment.start).getTime()) / 60_000;
+  const date = appointment.start.slice(0, 10);
+  return {
+    id: appointment.id,
+    sonographerId,
+    start: buildLocalIso(date, startMinutes),
+    end: buildLocalIso(date, startMinutes + durationMinutes),
+  };
 }

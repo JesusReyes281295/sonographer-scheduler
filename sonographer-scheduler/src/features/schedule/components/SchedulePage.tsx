@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addDays, format } from 'date-fns';
 import type { Appointment, AppointmentDraft } from '../../../core/domain/types';
+import { computeMovedSlot, validateAppointment } from '../../../core/domain/scheduling';
 import { buildLocalIso } from '../../../core/domain/time';
 import { ErrorBanner } from '../../../shared/components/ErrorBanner';
 import { Spinner } from '../../../shared/components/Spinner';
@@ -31,6 +32,8 @@ export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
   const [dialog, setDialog] = useState<DialogState>(null);
   const [managing, setManaging] = useState(false);
+  /** Why the last drag-and-drop move was refused (null when there's nothing to show). */
+  const [moveError, setMoveError] = useState<string | null>(null);
 
   const sonographers = useSonographers();
   const clinics = useClinics();
@@ -54,6 +57,9 @@ export function SchedulePage() {
     appointments.error;
 
   const changeDay = (offset: number) => setDate((d) => toDateParam(addDays(atNoon(d), offset)));
+
+  // A rejection message is about the day it happened on; drop it when the day changes.
+  useEffect(() => setMoveError(null), [date]);
 
   /** Reuse an existing patient by name, or register a new one on the fly. */
   const resolvePatientId = async (name: string): Promise<string> => {
@@ -87,6 +93,38 @@ export function SchedulePage() {
     if (dialog?.mode === 'edit') {
       await mutations.remove.mutateAsync(dialog.appointment.id);
     }
+  };
+
+  /**
+   * Dropping a card onto a slot: recompute its time/sonographer, run it through
+   * the same booking rules as the form, and either save it or explain the refusal.
+   */
+  const handleAppointmentMove = async (
+    appointmentId: string,
+    sonographerId: string,
+    startMinutes: number,
+  ) => {
+    const appointment = appointments.data?.find((a) => a.id === appointmentId);
+    const clinic = clinics.data?.find((c) => c.id === appointment?.clinicId);
+    if (!appointment || !clinic) return;
+
+    const slot = computeMovedSlot(appointment, sonographerId, startMinutes);
+    // Dropped back where it started — nothing to do.
+    if (slot.start === appointment.start && slot.sonographerId === appointment.sonographerId) return;
+
+    const errors = validateAppointment(slot, appointments.data ?? [], clinic);
+    if (errors.length > 0) {
+      setMoveError(errors[0].message);
+      return;
+    }
+
+    setMoveError(null);
+    await mutations.update.mutateAsync({
+      ...appointment,
+      sonographerId: slot.sonographerId,
+      start: slot.start,
+      end: slot.end,
+    });
   };
 
   const formInitial: Partial<AppointmentFormValues> =
@@ -159,6 +197,15 @@ export function SchedulePage() {
         />
       )}
 
+      {moveError && (
+        <div role="alert" className="error-banner">
+          <p>Couldn't move the appointment: {moveError}</p>
+          <button type="button" onClick={() => setMoveError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {isLoading && !loadError && <Spinner label="Loading schedule…" />}
 
       {!isLoading && !loadError && isReady && (
@@ -185,6 +232,7 @@ export function SchedulePage() {
               })
             }
             onAppointmentClick={(appointment) => setDialog({ mode: 'edit', appointment })}
+            onAppointmentMove={handleAppointmentMove}
           />
         </>
       )}

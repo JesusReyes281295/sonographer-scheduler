@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type {
   Appointment,
   Clinic,
@@ -35,6 +36,8 @@ interface ScheduleGridProps {
   /** Called with the sonographer and the slot's start (minutes since midnight). */
   onSlotClick: (sonographerId: string, startMinutes: number) => void;
   onAppointmentClick: (appointment: Appointment) => void;
+  /** Dropped an appointment onto a slot: its id, the target sonographer and start (minutes). */
+  onAppointmentMove: (appointmentId: string, sonographerId: string, startMinutes: number) => void;
 }
 
 export function ScheduleGrid({
@@ -45,7 +48,12 @@ export function ScheduleGrid({
   appointments,
   onSlotClick,
   onAppointmentClick,
+  onAppointmentMove,
 }: ScheduleGridProps) {
+  // The appointment currently being dragged. While set, cards go
+  // `pointer-events: none` (see the CSS) so drops land on the slots underneath.
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+
   return (
     <section className={styles.wrapper} aria-label="Daily schedule by sonographer">
       <div
@@ -72,8 +80,13 @@ export function ScheduleGrid({
         </div>
 
         {sonographers.map((sonographer) => (
-          <div key={sonographer.id} className={styles.column} style={{ height: DAY_HEIGHT }}>
-            {/* Real buttons per empty slot keep "create at this time" keyboard- and screen-reader-accessible. */}
+          <div
+            key={sonographer.id}
+            className={`${styles.column}${draggingId ? ` ${styles.dragActive}` : ''}`}
+            style={{ height: DAY_HEIGHT }}
+          >
+            {/* Real buttons per empty slot keep "create at this time" keyboard- and
+                screen-reader-accessible, and double as drop targets for dragged cards. */}
             {SLOTS.map((minutes) => (
               <button
                 key={minutes}
@@ -84,6 +97,13 @@ export function ScheduleGrid({
                   height: SLOT_MINUTES * PX_PER_MINUTE,
                 }}
                 onClick={() => onSlotClick(sonographer.id, minutes)}
+                onDragOver={(event) => {
+                  if (draggingId) event.preventDefault(); // allow the drop
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (draggingId) onAppointmentMove(draggingId, sonographer.id, minutes);
+                }}
                 aria-label={`Create appointment for ${sonographer.name} at ${minutesToTime(minutes)}`}
               />
             ))}
@@ -111,8 +131,16 @@ export function ScheduleGrid({
                   <button
                     key={appointment.id}
                     type="button"
-                    className={styles.appointment}
+                    className={`${styles.appointment}${draggingId === appointment.id ? ` ${styles.dragging}` : ''}`}
                     style={{ top, height, backgroundColor: clinic?.color }}
+                    draggable
+                    onDragStart={(event) => {
+                      // Firefox only starts a drag once some data is set.
+                      event.dataTransfer.setData('text/plain', appointment.id);
+                      event.dataTransfer.effectAllowed = 'move';
+                      setDraggingId(appointment.id);
+                    }}
+                    onDragEnd={() => setDraggingId(null)}
                     onClick={() => onAppointmentClick(appointment)}
                     title={`${patientName} · ${type?.name ?? 'Consultation'} · ${timeRange} · ${clinic?.name ?? ''}`}
                     aria-label={`Edit appointment: ${patientName}, ${type?.name ?? 'consultation'}, ${timeRange}, ${clinic?.name ?? 'unknown clinic'}, with ${sonographer.name}`}
