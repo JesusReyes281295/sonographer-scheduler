@@ -43,6 +43,36 @@ body {
   color: #334155;
 }
 
+/* Prominent Day / Week switch. */
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.view-toggle__btn {
+  border: none;
+  border-radius: 0;
+  padding: 8px 16px;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+}
+
+.view-toggle__btn + .view-toggle__btn {
+  border-left: 1px solid #cbd5e1;
+}
+
+.view-toggle__btn.is-active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.view-toggle__btn.is-active:hover {
+  background: #1d4ed8;
+}
+
 button {
   font: inherit;
   border: 1px solid #cbd5e1;
@@ -159,4 +189,23 @@ button:disabled {
   color: #1e40af;
   border-radius: 10px;
   font-size: 14px;
+}
+
+/* Clone that follows the pointer while dragging an appointment (day or week grid);
+   never a hit-test target itself, so the drop lands on the slot underneath. */
+.drag-preview {
+  position: fixed;
+  z-index: 1000;
+  transform: translate(10px, 10px);
+  max-width: 220px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  opacity: 0.95;
 }

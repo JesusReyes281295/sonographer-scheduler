@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Clinic, ConsultationType, Patient, Sonographer } from '../../../core/domain/types';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  Appointment,
+  Clinic,
+  ConsultationType,
+  Patient,
+  Sonographer,
+} from '../../../core/domain/types';
 import type { CrudApi } from '../services/scheduleApi';
 import {
   appointmentsApi,
@@ -45,6 +51,34 @@ export function useAppointments(date: string) {
     queryKey: scheduleKeys.appointments(date),
     queryFn: () => appointmentsApi.listByDate(date),
   });
+}
+
+/**
+ * Fetches a whole week as one query per day, reusing the same per-day cache keys
+ * as the day view — so the two views share data and every optimistic mutation
+ * (create / move / delete) shows up in both without extra wiring.
+ */
+export function useWeekAppointments(days: string[], enabled = true) {
+  const results = useQueries({
+    queries: days.map((day) => ({
+      queryKey: scheduleKeys.appointments(day),
+      queryFn: () => appointmentsApi.listByDate(day),
+      enabled,
+    })),
+  });
+
+  const byDay: Record<string, Appointment[]> = {};
+  days.forEach((day, i) => {
+    byDay[day] = results[i].data ?? [];
+  });
+
+  return {
+    byDay,
+    // isLoading (not isPending) so disabled queries in the day view don't read as pending.
+    isPending: results.some((r) => r.isLoading),
+    error: results.find((r) => r.error)?.error ?? null,
+    refetch: () => results.forEach((r) => void r.refetch()),
+  };
 }
 
 /** Create/update/delete for one configurable collection, re-fetching it when done. */
