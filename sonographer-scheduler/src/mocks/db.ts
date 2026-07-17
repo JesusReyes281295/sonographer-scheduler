@@ -22,13 +22,26 @@ const seedState = (): DbState => ({
   consultationTypes: structuredClone(consultationTypes),
 });
 
-/** Load persisted data on first import; on a fresh install, seed and persist it. */
+/**
+ * Load persisted data on first import; on a fresh install, seed and persist it.
+ *
+ * Persisted data is overlaid on a complete seed, so a collection added in a later
+ * schema can never come back `undefined` from an older browser payload (which
+ * would crash the app on load). The version guard in `storage` handles wholly
+ * incompatible data; this is the belt-and-suspenders for a partial shape.
+ */
 function initState(): DbState {
-  const persisted = loadState<DbState>();
-  if (persisted) return persisted;
   const seeded = seedState();
-  saveState(seeded);
-  return seeded;
+  const persisted = loadState<Partial<DbState>>();
+  const state: DbState = {
+    appointments: persisted?.appointments ?? seeded.appointments,
+    patients: persisted?.patients ?? seeded.patients,
+    sonographers: persisted?.sonographers ?? seeded.sonographers,
+    clinics: persisted?.clinics ?? seeded.clinics,
+    consultationTypes: persisted?.consultationTypes ?? seeded.consultationTypes,
+  };
+  saveState(state); // persist a fresh seed, and heal any partial data in place
+  return state;
 }
 
 /** Tiny persistent "database" backing the mocked REST API. */
