@@ -12,7 +12,8 @@ A small daily-scheduling application for sonographers and clinics, built with **
 - **Quick note shortcuts** — one-tap chips ("Urgent", "Possibly cancelled", …) to annotate appointments without retyping.
 - Loading, error (with retry) and empty states on every data fetch.
 - **Optimistic UI updates** with automatic rollback when the server rejects a change.
-- **Local-first persistence** — the schedule is saved in the browser (`localStorage`) and survives reloads, with no database to install.
+- **Set it up for your own hospital** — a **Manage** panel to add, edit and delete clinics (hours, colour, icon, holiday policy), sonographers, patients and study types, without touching code. Anything still used by an appointment can't be deleted, and changes show up in the schedule immediately.
+- **Local-first persistence** — the schedule *and your setup* are saved in the browser (`localStorage`) and survive reloads, with no database to install.
 - Unit tests for the domain rules and integration tests for the critical UI flows.
 
 ## Getting started
