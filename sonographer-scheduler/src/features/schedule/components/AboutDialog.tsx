@@ -8,24 +8,34 @@ interface Feature {
 }
 
 const CURRENT_FEATURES: Feature[] = [
-  { icon: '📅', title: 'Day & week views', body: 'See one day in detail or the whole week at a glance, and jump between them instantly.' },
+  { icon: '📅', title: 'Day & week views', body: 'See one day in detail or the whole week at a glance — the app opens on today, and a date picker jumps straight to any day.' },
+  { icon: '🕐', title: 'Always oriented', body: 'A red line marks the current time, the grid opens scrolled to it, and appointments that already ended fade back.' },
   { icon: '🖱️', title: 'Drag to reschedule', body: 'Move an appointment to another time, another sonographer, or another day — just drag it.' },
   { icon: '⛔', title: 'No double-bookings', body: 'The schedule refuses overlaps, out-of-hours slots and closed-clinic holidays as you book.' },
   { icon: '🎉', title: 'Holiday-aware', body: 'Clinics that close on US federal holidays are blocked automatically, with open alternatives suggested.' },
   { icon: '🏥', title: 'Manage your hospital', body: 'Add and edit clinics, sonographers, patients and study types — the schedule updates right away.' },
-  { icon: '🔎', title: 'Filters', body: 'Focus the board on the sonographers or clinics you care about.' },
+  { icon: '🔎', title: 'Filters & clinic chips', body: 'Focus the board on certain sonographers or clinics — from the Filters panel, or by tapping a clinic chip in the legend.' },
+  { icon: '🎓', title: 'Credentialed staff', body: 'Every column shows the sonographer’s avatar and ARDMS credentials (RDMS, RDCS, RVT…), editable in Manage.' },
+  { icon: '📞', title: 'Patients on file', body: 'The patient field autocompletes, registers new patients on the fly, keeps their phone up to date, and Book again rebooks them in one tap.' },
+  { icon: '📊', title: 'Printable reports', body: 'Build a report of any date range — filter it, group it by day, sonographer or clinic, choose its columns, and print it.' },
   { icon: '💾', title: 'Works offline', body: 'Everything is saved on the device and survives a reload — no setup, no database.' },
   { icon: '🖨️', title: 'Printable appointments', body: 'Print a clean summary of any saved appointment in one click.' },
 ];
 
 const FUTURE_FEATURES: Feature[] = [
   { icon: '📧', title: 'Reminders by email, WhatsApp & SMS', body: 'Send patients an automatic confirmation and a reminder before their appointment.' },
+  { icon: '🔁', title: 'Recurring appointments', body: 'Book a whole series of follow-ups in one go — weekly, monthly, or on your own pattern.' },
   { icon: '🗓️', title: 'Any appointment type', body: 'Go beyond ultrasound — schedule consultations, lab work and other hospital services on the same board.' },
   { icon: '🎨', title: 'Your hospital, your brand', body: 'Add your logo and colours so the schedule and printouts look like your own.' },
-  { icon: '📊', title: 'Weekly reports', body: 'Automatic weekly and monthly reports on volume, utilisation and no-shows.' },
+  { icon: '📬', title: 'Scheduled reports to your inbox', body: 'The reports you build today, emailed automatically every week or month.' },
   { icon: '📱', title: 'Patient self-scheduling', body: 'Let patients pick an open slot online, with the same rules protecting your calendar.' },
   { icon: '🔔', title: 'Live notifications & waitlists', body: 'Fill cancellations instantly by pulling the next patient from a smart waitlist.' },
   { icon: '📈', title: 'Analytics dashboard', body: 'Spot busy hours, idle rooms and bottlenecks to plan staffing with confidence.' },
+  { icon: '🔐', title: 'Roles & permissions', body: 'Front desk, sonographers and admins each see exactly what they need — with a login to match.' },
+  { icon: '📤', title: 'Excel & calendar export', body: 'Download any report as Excel or CSV, or subscribe to the schedule from your own calendar app.' },
+  { icon: '🕰️', title: 'Change history', body: 'See who booked, moved or cancelled every appointment — and when.' },
+  { icon: '🌙', title: 'Dark mode', body: 'A night-friendly theme for early starts and late shifts.' },
+  { icon: '☁️', title: 'Cloud sync', body: 'A hosted backend so every desk shares one live schedule, on any device.' },
   { icon: '🔗', title: 'EMR integration', body: 'Sync patients and results with your hospital information system.' },
   { icon: '🌐', title: 'Multi-language', body: 'Run the whole experience in your team’s language.' },
 ];
