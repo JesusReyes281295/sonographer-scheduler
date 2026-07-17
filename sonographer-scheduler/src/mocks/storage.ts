@@ -13,8 +13,9 @@ const STORAGE_KEY = 'sonographer-scheduler:db';
  *  v2: appointments reference `patientId`/`consultationTypeId`, and patients are stored.
  *  v3: sonographers, clinics and study types are editable, so they are stored too.
  *  v4: an `anchorDate` records which day the schedule is currently sitting on.
- *  v5: patients carry a `phone` for appointment reminders (seed now includes them). */
-export const SCHEMA_VERSION = 5;
+ *  v5: patients carry a `phone` for appointment reminders (seed now includes them).
+ *  v6: sonographers carry `credentials` shown in the schedule header. */
+export const SCHEMA_VERSION = 6;
 
 interface Envelope<T> {
   version: number;

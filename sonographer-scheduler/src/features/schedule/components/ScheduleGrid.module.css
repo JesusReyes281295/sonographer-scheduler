@@ -29,10 +29,47 @@
 }
 
 .columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border-left: 1px solid #e2e8f0;
-  padding: 10px 12px;
+  padding: 8px 10px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.headerName {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The professional credentials (RDMS, RDCS…) that mark the column as clinical staff. */
+.headerRole {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* The hours stay visible while scrolling horizontally across sonographers. */

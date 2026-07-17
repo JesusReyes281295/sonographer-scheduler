@@ -1,6 +1,8 @@
 export interface Sonographer {
   id: string;
   name: string;
+  /** Professional credentials shown under the name (e.g. ARDMS "RDMS, RVT"). */
+  credentials?: string;
 }
 
 export interface Clinic {

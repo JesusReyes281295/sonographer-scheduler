@@ -1,14 +1,16 @@
 import { addDays, format } from 'date-fns';
 import type { Appointment, Clinic, ConsultationType, Patient, Sonographer } from '../core/domain/types';
 
+// Credentials are real ARDMS certifications: RDMS (general), RDCS (cardiac),
+// RVT (vascular), RMSKS (musculoskeletal) — sonographers, not physicians.
 export const sonographers: Sonographer[] = [
-  { id: 's1', name: 'Alice Chen' },
-  { id: 's2', name: 'Brian Osei' },
-  { id: 's3', name: 'Carla Reyes' },
-  { id: 's4', name: 'Diego Martins' },
-  { id: 's5', name: 'Emma Novak' },
-  { id: 's6', name: 'Farah Haddad' },
-  { id: 's7', name: 'Grace Kim' },
+  { id: 's1', name: 'Alice Chen', credentials: 'RDMS, RVT' },
+  { id: 's2', name: 'Brian Osei', credentials: 'RDCS' },
+  { id: 's3', name: 'Carla Reyes', credentials: 'RDMS, RMSKS' },
+  { id: 's4', name: 'Diego Martins', credentials: 'RDMS' },
+  { id: 's5', name: 'Emma Novak', credentials: 'RDCS, RVT' },
+  { id: 's6', name: 'Farah Haddad', credentials: 'RDMS' },
+  { id: 's7', name: 'Grace Kim', credentials: 'RDMS, RVT' },
 ];
 
 // A mix of hospital-affiliated sites that stay open on public holidays and

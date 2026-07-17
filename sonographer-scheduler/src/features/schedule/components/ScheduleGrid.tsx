@@ -17,6 +17,7 @@ import {
   SLOTS,
   SLOT_MINUTES,
 } from '../gridConstants';
+import { avatarColor, initials } from '../avatar';
 import { type DropTarget, useAppointmentDrag } from '../hooks/useAppointmentDrag';
 import { useNowMinutes } from '../hooks/useNowMinutes';
 import styles from './ScheduleGrid.module.css';
@@ -77,7 +78,20 @@ export function ScheduleGrid({
         <div className={styles.corner} />
         {sonographers.map((sonographer) => (
           <div key={sonographer.id} className={styles.columnHeader}>
-            {sonographer.name}
+            {/* Avatar + credentials make it obvious these columns are clinical staff. */}
+            <span
+              className={styles.avatar}
+              style={{ backgroundColor: avatarColor(sonographer.name) }}
+              aria-hidden="true"
+            >
+              {initials(sonographer.name)}
+            </span>
+            <span className={styles.headerText}>
+              <span className={styles.headerName}>{sonographer.name}</span>
+              {sonographer.credentials && (
+                <span className={styles.headerRole}>{sonographer.credentials}</span>
+              )}
+            </span>
           </div>
         ))}
 
