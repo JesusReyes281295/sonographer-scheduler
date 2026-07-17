@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { type AppointmentSlot, clinicHolidayClosure, overlaps, validateAppointment } from './scheduling';
+import {
+  type AppointmentSlot,
+  clinicHolidayClosure,
+  computeMovedSlot,
+  overlaps,
+  validateAppointment,
+} from './scheduling';
 import type { Appointment, Clinic } from './types';
 
 const clinic: Clinic = {
@@ -146,6 +152,40 @@ describe('validateAppointment', () => {
       clinic,
     );
     expect(codes(result)).toEqual(expect.arrayContaining(['OUTSIDE_CLINIC_HOURS', 'DOUBLE_BOOKED']));
+  });
+});
+
+describe('computeMovedSlot', () => {
+  it('shifts the start time while preserving the duration and the day', () => {
+    // 09:00–10:00 dragged down to 13:30 → 13:30–14:30, same sonographer and day.
+    expect(computeMovedSlot(booked, 's1', 13 * 60 + 30)).toEqual({
+      id: 'a1',
+      sonographerId: 's1',
+      start: '2026-07-13T13:30:00',
+      end: '2026-07-13T14:30:00',
+    });
+  });
+
+  it('moves the appointment to another sonographer at the same time', () => {
+    expect(computeMovedSlot(booked, 's2', 9 * 60)).toEqual({
+      id: 'a1',
+      sonographerId: 's2',
+      start: '2026-07-13T09:00:00',
+      end: '2026-07-13T10:00:00',
+    });
+  });
+
+  it('preserves a non-round duration', () => {
+    const short: Appointment = { ...booked, start: '2026-07-13T09:30:00', end: '2026-07-13T10:15:00' };
+    expect(computeMovedSlot(short, 's1', 11 * 60)).toMatchObject({
+      start: '2026-07-13T11:00:00',
+      end: '2026-07-13T11:45:00',
+    });
+  });
+
+  it('carries the id so the moved slot validates without self-conflicting', () => {
+    const moved = computeMovedSlot(booked, 's1', 15 * 60); // 15:00–16:00, free for s1
+    expect(validateAppointment(moved, [booked], clinic)).toEqual([]);
   });
 });
 
