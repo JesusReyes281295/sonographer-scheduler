@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?logo=vite&logoColor=white)
-![Vitest](https://img.shields.io/badge/tests-18%20passing-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/tests-35%20passing-6E9F18?logo=vitest&logoColor=white)
 ![MSW](https://img.shields.io/badge/API-mocked%20with%20MSW-FF6A33)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -57,7 +57,7 @@ npm run dev          # opens the app; the mock API runs right in your browser
 Other handy commands (from inside `sonographer-scheduler/`):
 
 ```bash
-npm test             # run the test suite (18 tests: domain rules + UI flows)
+npm test             # run the test suite (35 tests: domain rules, holidays, persistence + UI flows)
 npm run lint         # lint with accessibility checks
 npm run build        # type-check + production build
 ```
@@ -112,12 +112,10 @@ Want to use them elsewhere? Copy the [`skills/`](./skills) folder (and `CLAUDE.m
 
 ## 🗺️ Roadmap
 
-📋 **The detailed, living plan — what's done, what's next, step by step — lives in
-[`docs/ROADMAP.md`](./docs/ROADMAP.md).** Work ships as **one pull request per feature.**
+Built **one pull request per feature** — expect this list (and this README) to keep evolving:
 
-On the way:
-
-- [ ] 💾 **Local-first persistence** — your data survives reloads with zero setup (no database to install).
+- [x] 💾 **Local-first persistence** — your data survives reloads with zero setup (no database to install).
+- [x] 🇺🇸 **Holiday-aware scheduling** — clinics closed on US federal holidays block bookings, and the app recommends one that's open.
 - [ ] 🧑‍⚕️ **Patients & consultation types** as first-class, customizable entities (names + icons).
 - [ ] 🏥 **Hospital management UI** — set up the app for a specific clinic in minutes.
 - [ ] 🔀 **Drag-and-drop** appointment moving on top of the existing validation.
@@ -125,7 +123,7 @@ On the way:
 - [ ] 🧪 **End-to-end tests** reusing the seed data.
 - [ ] 🎬 **Guided demo tour** to learn every feature (exit anytime with `Escape`).
 
-_Deferred for now:_ a hosted backend (the app is already backend-ready — see the plan) and
+_Deferred for now:_ a hosted backend (the app is already backend-ready) and
 wiring the review skills into CI/CD.
 
 ---
