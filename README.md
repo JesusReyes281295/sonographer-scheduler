@@ -13,6 +13,10 @@
 
 [Run it](#️-run-it-in-3-steps) · [What it does](#-the-application) · [Tech stack](#-technical-stack--infrastructure-tips) · [AI skills](#-the-ai-skills-library--a-codebase-that-improves-itself) · [Roadmap](#-coming-soon)
 
+<img src="docs/demo.gif" alt="30-second tour of Sonographer Scheduler: booking with phone auto-fill, drag to reschedule, week view, clinic-chip filters and a printable report" width="900">
+
+*A 30-second tour — book, drag, filter, report. [Watch it in HD](docs/demo.mp4).*
+
 </div>
 
 Welcome! 👋 This repository is **two things that work together**:
