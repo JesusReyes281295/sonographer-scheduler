@@ -58,3 +58,64 @@ export function useAppointmentMutations(date: string) {
 
   return { create, update, remove };
 }
+
+interface MovePayload {
+  /** The appointment's day before the move ("yyyy-MM-dd"). */
+  fromDate: string;
+  /** The appointment with its new sonographer / day / time already applied. */
+  next: Appointment;
+}
+
+interface MoveContext {
+  fromKey: ReturnType<typeof scheduleKeys.appointments>;
+  toKey: ReturnType<typeof scheduleKeys.appointments>;
+  previousFrom?: Appointment[];
+  previousTo?: Appointment[];
+}
+
+/**
+ * Drag-and-drop move that can cross days. Unlike the plain `update`, it patches
+ * both the source day's cache (remove) and the target day's cache (add), so the
+ * day and week views react instantly, then rolls back / re-syncs both on settle.
+ * Same-day moves collapse to a replace (both keys are equal).
+ */
+export function useMoveAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ next }: MovePayload) => appointmentsApi.update(next),
+    onMutate: async ({ fromDate, next }): Promise<MoveContext> => {
+      const fromKey = scheduleKeys.appointments(fromDate);
+      const toKey = scheduleKeys.appointments(next.start.slice(0, 10));
+      const crossDay = fromKey[1] !== toKey[1];
+
+      await queryClient.cancelQueries({ queryKey: fromKey });
+      if (crossDay) await queryClient.cancelQueries({ queryKey: toKey });
+
+      const previousFrom = queryClient.getQueryData<Appointment[]>(fromKey);
+      const previousTo = queryClient.getQueryData<Appointment[]>(toKey);
+
+      queryClient.setQueryData<Appointment[]>(fromKey, (current = []) =>
+        current.filter((a) => a.id !== next.id),
+      );
+      queryClient.setQueryData<Appointment[]>(toKey, (current = []) => [
+        ...current.filter((a) => a.id !== next.id),
+        next,
+      ]);
+
+      return { fromKey, toKey, previousFrom, previousTo };
+    },
+    onError: (_error, _payload, context) => {
+      if (!context) return;
+      queryClient.setQueryData(context.fromKey, context.previousFrom);
+      queryClient.setQueryData(context.toKey, context.previousTo);
+    },
+    onSettled: (_data, _error, _payload, context) => {
+      if (!context) return;
+      queryClient.invalidateQueries({ queryKey: context.fromKey });
+      if (context.fromKey[1] !== context.toKey[1]) {
+        queryClient.invalidateQueries({ queryKey: context.toKey });
+      }
+    },
+  });
+}

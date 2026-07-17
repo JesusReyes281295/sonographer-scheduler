@@ -8,7 +8,8 @@
 
 .grid {
   display: grid;
-  min-width: 640px;
+  grid-template-columns: 56px repeat(7, minmax(110px, 1fr));
+  min-width: 760px;
 }
 
 .corner,
@@ -22,9 +23,16 @@
 
 .columnHeader {
   border-left: 1px solid #e2e8f0;
-  padding: 10px 12px;
+  padding: 10px 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.todayHeader {
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .timeGutter {
@@ -33,9 +41,9 @@
 
 .hourLabel {
   position: absolute;
-  right: 8px;
+  right: 6px;
   transform: translateY(-50%);
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
   padding-top: 2px;
 }
@@ -72,21 +80,18 @@
 
 .appointment {
   position: absolute;
-  left: 4px;
-  right: 4px;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
   align-items: flex-start;
   border: none;
-  border-radius: 6px;
-  padding: 4px 8px;
+  border-radius: 5px;
+  padding: 3px 5px;
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.2;
   text-align: left;
   cursor: grab;
-  /* Let pointer drags start cleanly instead of scrolling or selecting text. */
   touch-action: none;
   user-select: none;
   overflow: hidden;
@@ -97,34 +102,25 @@
   filter: brightness(1.08);
 }
 
-/* The card being dragged: dim it and show the grabbing cursor. */
-.dragging {
-  opacity: 0.4;
-  cursor: grabbing;
-}
-
-/* While a card is dragged, the other cards stop intercepting the pointer so the
-   release lands on the slot underneath (elementFromPoint skips them). The dragged
-   card keeps pointer events so its pointer capture keeps working. */
-.dragActive .appointment:not(.dragging) {
-  pointer-events: none;
-}
-
 .appointment:focus-visible {
   outline: 2px solid #0f172a;
   outline-offset: 2px;
 }
 
-.appointment strong {
-  font-size: 13px;
-}
-
-/* A card is only as tall as its appointment is long, so each line must stay on
-   one line and end in an ellipsis instead of wrapping and being cut mid-word. */
-.appointment > strong,
-.appointment > span {
+.appointment > strong {
+  font-size: 11px;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Dragged card: dim it, and (below) let the release reach the slot underneath. */
+.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.dragActive .appointment:not(.dragging) {
+  pointer-events: none;
 }

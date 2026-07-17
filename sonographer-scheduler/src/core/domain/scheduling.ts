@@ -99,17 +99,19 @@ export function validateAppointment(
 
 /**
  * Moves an appointment to a new sonographer and start time (minutes since
- * midnight), preserving its duration and calendar day. Pure geometry — it does
- * not enforce any rule; feed the result to `validateAppointment` before saving.
+ * midnight), preserving its duration. `date` ("yyyy-MM-dd") defaults to the
+ * appointment's own day; pass a different one to move it across days (the week
+ * view). Pure geometry — it does not enforce any rule; feed the result to
+ * `validateAppointment` before saving.
  */
 export function computeMovedSlot(
   appointment: Appointment,
   sonographerId: string,
   startMinutes: number,
+  date: string = appointment.start.slice(0, 10),
 ): AppointmentSlot {
   const durationMinutes =
     (new Date(appointment.end).getTime() - new Date(appointment.start).getTime()) / 60_000;
-  const date = appointment.start.slice(0, 10);
   return {
     id: appointment.id,
     sonographerId,
