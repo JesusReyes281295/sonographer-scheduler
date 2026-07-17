@@ -78,7 +78,8 @@ const TOUR_STEPS: TourStep[] = [
 
 export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
-  const [view, setView] = usePersistentState<View>('scheduler.view', 'day');
+  // The app always opens on the day view; the week view is opt-in per session.
+  const [view, setView] = useState<View>('day');
   const [filters, setFilters] = usePersistentState<Filters>('scheduler.filters', EMPTY_FILTERS);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [managing, setManaging] = useState(false);
@@ -198,6 +199,14 @@ export function SchedulePage() {
     if (errors.length > 0) {
       setMoveError(errors[0].message);
       return;
+    }
+
+    // Moving into the past is allowed, but easy to do by accident — warn first.
+    if (targetDate < toDateParam(new Date())) {
+      const proceed = window.confirm(
+        'This appointment would move to a date that has already passed. Move it anyway?',
+      );
+      if (!proceed) return;
     }
 
     setMoveError(null);

@@ -265,16 +265,6 @@ describe('Week view and filters', () => {
     expect(screen.getByText('Maria Lopez')).toBeInTheDocument();
   });
 
-  it('persists the chosen view', async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await screen.findByText('Maria Lopez');
-
-    await user.click(screen.getByRole('button', { name: /^week$/i }));
-
-    await waitFor(() => expect(localStorage.getItem('scheduler.view')).toBe('"week"'));
-  });
-
   it('moves an appointment to another day by dragging it in the week view', async () => {
     const user = userEvent.setup();
     renderPage();
@@ -292,6 +282,9 @@ describe('Week view and filters', () => {
     expect(target).toBeTruthy();
     const targetDate = target!.dataset.date!;
 
+    // The target day may be earlier than today, which prompts a "date has passed"
+    // confirmation — accept it so the move goes through either way.
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     dragCardOntoSlot(card, target!);
 
     // Landed on the new day at 09:00, same sonographer — and the move persisted.
@@ -301,6 +294,7 @@ describe('Week view and filters', () => {
       expect(moved?.start).toMatch(/T09:00:00$/);
       expect(moved?.sonographerId).toBe('s1');
     });
+    confirmSpy.mockRestore();
   });
 });
 
