@@ -176,6 +176,65 @@ describe('SchedulePage', () => {
   });
 });
 
+describe('Moving an appointment by drag-and-drop', () => {
+  // jsdom has no DataTransfer; a stub is enough since the drop reads the dragged
+  // appointment from component state, not from the transfer payload.
+  const dataTransfer = () => ({ setData: vi.fn(), getData: vi.fn(), effectAllowed: '', dropEffect: '' });
+
+  function dragCardOntoSlot(card: HTMLElement, slot: HTMLElement) {
+    const transfer = dataTransfer();
+    fireEvent.dragStart(card, { dataTransfer: transfer });
+    fireEvent.dragOver(slot, { dataTransfer: transfer });
+    fireEvent.drop(slot, { dataTransfer: transfer });
+    fireEvent.dragEnd(card, { dataTransfer: transfer });
+  }
+
+  it('moves an appointment to another sonographer, keeping its duration', async () => {
+    renderPage();
+    // Seed a1: Maria Lopez, Alice Chen (s1), Downtown Imaging, 09:00–10:00.
+    const card = await screen.findByRole('button', { name: /Maria Lopez, OB ultrasound/i });
+    const target = screen.getByRole('button', {
+      name: /Create appointment for Carla Reyes at 09:00/i,
+    });
+
+    dragCardOntoSlot(card, target);
+
+    // Optimistically re-homed under Carla Reyes, still 09:00–10:00 at the same clinic.
+    expect(
+      await screen.findByRole('button', {
+        name: /Maria Lopez, OB ultrasound.*Downtown Imaging, with Carla Reyes/i,
+      }),
+    ).toBeInTheDocument();
+
+    // Wait for the PUT to land so it can't pollute the next test, and prove the move stuck.
+    await waitFor(() => {
+      const moved = db.getAppointment('a1');
+      expect(moved?.sonographerId).toBe('s3');
+      expect(moved?.start).toMatch(/T09:00:00$/);
+      expect(moved?.end).toMatch(/T10:00:00$/);
+    });
+  });
+
+  it('refuses a drop that would double-book the sonographer and leaves it in place', async () => {
+    renderPage();
+    // Seed a3: Alice Chen (s1) is already booked 13:00–14:00.
+    const card = await screen.findByRole('button', { name: /Maria Lopez, OB ultrasound/i });
+    const target = screen.getByRole('button', {
+      name: /Create appointment for Alice Chen at 13:00/i,
+    });
+
+    dragCardOntoSlot(card, target);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/already booked/i);
+    // Untouched: still 09:00–10:00 with Alice Chen, and the store never changed.
+    expect(
+      screen.getByRole('button', { name: /Maria Lopez, OB ultrasound.*with Alice Chen/i }),
+    ).toBeInTheDocument();
+    expect(db.getAppointment('a1')?.start).toMatch(/T09:00:00$/);
+    expect(db.getAppointment('a1')?.sonographerId).toBe('s1');
+  });
+});
+
 describe('Managing the hospital', () => {
   async function openManagement(user: ReturnType<typeof userEvent.setup>) {
     renderPage();
