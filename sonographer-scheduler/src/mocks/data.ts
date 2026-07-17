@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import type { Appointment, Clinic, ConsultationType, Patient, Sonographer } from '../core/domain/types';
 
 export const sonographers: Sonographer[] = [
@@ -57,24 +57,46 @@ export const seedPatients: Patient[] = [
   { id: 'p14', name: 'Julia Moreau', mrn: 'MRN-1055' },
 ];
 
-// Seed appointments are generated for "today" so the app always opens with a
-// populated schedule. The db re-anchors them to the current day on later opens.
+// Seed appointments are generated around "today" so the app always opens with a
+// populated schedule — most on today, a handful on the next two days so the week
+// view looks alive. The db re-anchors the whole set to the current day on later opens.
 export const seedAnchorDate = format(new Date(), 'yyyy-MM-dd');
-const at = (start: string, end: string) => ({
-  start: `${seedAnchorDate}T${start}:00`,
-  end: `${seedAnchorDate}T${end}:00`,
+/** "yyyy-MM-dd" for `offset` days after the anchor (noon avoids DST edges). */
+const seedDay = (offset: number) =>
+  format(addDays(new Date(`${seedAnchorDate}T12:00:00`), offset), 'yyyy-MM-dd');
+const day0 = seedAnchorDate;
+const day1 = seedDay(1);
+const day2 = seedDay(2);
+const at = (day: string, start: string, end: string) => ({
+  start: `${day}T${start}:00`,
+  end: `${day}T${end}:00`,
 });
 
 export const seedAppointments: Appointment[] = [
-  { id: 'a1', sonographerId: 's1', clinicId: 'c1', patientId: 'p1', consultationTypeId: 'ct1', ...at('09:00', '10:00'), notes: '20 weeks' },
-  { id: 'a2', sonographerId: 's2', clinicId: 'c2', patientId: 'p2', consultationTypeId: 'ct6', ...at('10:30', '11:30') },
-  { id: 'a3', sonographerId: 's1', clinicId: 'c1', patientId: 'p3', consultationTypeId: 'ct2', ...at('13:00', '14:00'), notes: 'Fasting confirmed' },
-  { id: 'a4', sonographerId: 's4', clinicId: 'c3', patientId: 'p4', consultationTypeId: 'ct5', ...at('09:30', '10:15'), notes: 'Follow-up needed' },
-  { id: 'a5', sonographerId: 's5', clinicId: 'c5', patientId: 'p5', consultationTypeId: 'ct6', ...at('08:00', '09:00'), notes: 'Urgent' },
-  { id: 'a6', sonographerId: 's2', clinicId: 'c2', patientId: 'p6', consultationTypeId: 'ct3', ...at('12:00', '12:45') },
-  { id: 'a7', sonographerId: 's6', clinicId: 'c7', patientId: 'p7', consultationTypeId: 'ct4', ...at('14:00', '15:00') },
-  { id: 'a8', sonographerId: 's3', clinicId: 'c9', patientId: 'p8', consultationTypeId: 'ct5', ...at('14:30', '15:30') },
-  { id: 'a9', sonographerId: 's7', clinicId: 'c10', patientId: 'p9', consultationTypeId: 'ct7', ...at('16:00', '17:00'), notes: 'Possibly cancelled' },
-  { id: 'a10', sonographerId: 's4', clinicId: 'c1', patientId: 'p10', consultationTypeId: 'ct2', ...at('11:00', '12:00'), notes: 'New patient' },
-  { id: 'a11', sonographerId: 's5', clinicId: 'c5', patientId: 'p11', consultationTypeId: 'ct3', ...at('10:00', '10:45') },
+  // Today — the day the app opens on.
+  { id: 'a1', sonographerId: 's1', clinicId: 'c1', patientId: 'p1', consultationTypeId: 'ct1', ...at(day0, '09:00', '10:00'), notes: '20 weeks' },
+  { id: 'a2', sonographerId: 's2', clinicId: 'c2', patientId: 'p2', consultationTypeId: 'ct6', ...at(day0, '10:30', '11:30') },
+  { id: 'a3', sonographerId: 's1', clinicId: 'c1', patientId: 'p3', consultationTypeId: 'ct2', ...at(day0, '13:00', '14:00'), notes: 'Fasting confirmed' },
+  { id: 'a4', sonographerId: 's4', clinicId: 'c3', patientId: 'p4', consultationTypeId: 'ct5', ...at(day0, '09:30', '10:15'), notes: 'Follow-up needed' },
+  { id: 'a5', sonographerId: 's5', clinicId: 'c5', patientId: 'p5', consultationTypeId: 'ct6', ...at(day0, '08:00', '09:00'), notes: 'Urgent' },
+  { id: 'a6', sonographerId: 's2', clinicId: 'c2', patientId: 'p6', consultationTypeId: 'ct3', ...at(day0, '12:00', '12:45') },
+  { id: 'a7', sonographerId: 's6', clinicId: 'c7', patientId: 'p7', consultationTypeId: 'ct4', ...at(day0, '14:00', '15:00') },
+  { id: 'a8', sonographerId: 's3', clinicId: 'c9', patientId: 'p8', consultationTypeId: 'ct5', ...at(day0, '14:30', '15:30') },
+  { id: 'a9', sonographerId: 's7', clinicId: 'c10', patientId: 'p9', consultationTypeId: 'ct7', ...at(day0, '16:00', '17:00'), notes: 'Possibly cancelled' },
+  { id: 'a10', sonographerId: 's4', clinicId: 'c1', patientId: 'p10', consultationTypeId: 'ct2', ...at(day0, '11:00', '12:00'), notes: 'New patient' },
+  { id: 'a11', sonographerId: 's5', clinicId: 'c5', patientId: 'p11', consultationTypeId: 'ct3', ...at(day0, '10:00', '10:45') },
+
+  // Tomorrow — a mix, with a morning overlap so the week view shows side-by-side lanes.
+  { id: 'a12', sonographerId: 's2', clinicId: 'c2', patientId: 'p2', consultationTypeId: 'ct2', ...at(day1, '09:00', '10:00') },
+  { id: 'a13', sonographerId: 's4', clinicId: 'c3', patientId: 'p10', consultationTypeId: 'ct5', ...at(day1, '09:30', '10:15'), notes: 'Follow-up needed' },
+  { id: 'a14', sonographerId: 's5', clinicId: 'c5', patientId: 'p7', consultationTypeId: 'ct6', ...at(day1, '08:30', '09:30') },
+  { id: 'a15', sonographerId: 's3', clinicId: 'c9', patientId: 'p5', consultationTypeId: 'ct1', ...at(day1, '13:00', '14:00'), notes: '32 weeks' },
+  { id: 'a16', sonographerId: 's6', clinicId: 'c7', patientId: 'p9', consultationTypeId: 'ct7', ...at(day1, '15:00', '16:00') },
+  { id: 'a17', sonographerId: 's7', clinicId: 'c10', patientId: 'p11', consultationTypeId: 'ct4', ...at(day1, '11:00', '12:00') },
+
+  // Day after tomorrow.
+  { id: 'a18', sonographerId: 's7', clinicId: 'c10', patientId: 'p12', consultationTypeId: 'ct4', ...at(day2, '10:00', '11:00') },
+  { id: 'a19', sonographerId: 's1', clinicId: 'c1', patientId: 'p13', consultationTypeId: 'ct2', ...at(day2, '14:00', '15:00'), notes: 'Fasting confirmed' },
+  { id: 'a20', sonographerId: 's2', clinicId: 'c2', patientId: 'p14', consultationTypeId: 'ct3', ...at(day2, '11:30', '12:15') },
+  { id: 'a21', sonographerId: 's3', clinicId: 'c9', patientId: 'p6', consultationTypeId: 'ct5', ...at(day2, '09:00', '10:00') },
 ];
