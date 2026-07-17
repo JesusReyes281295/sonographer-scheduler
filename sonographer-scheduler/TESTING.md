@@ -1,10 +1,10 @@
 # Manual Acceptance Checklist
 
-A step-by-step verification script mapping every requirement (and bonus) of the technical evaluation to a concrete, observable test.
+A step-by-step verification script mapping every requirement (and bonus) of the original brief to a concrete, observable test — plus quick spot-checks for everything the app grew beyond it.
 
 **Setup:** run `npm run dev` and open http://localhost:5173.
 
-**Seed data reference** (regenerated for "today" on every load):
+**Seed data reference.** The sample data covers **7 sonographers and 10 clinics** with a full day of appointments **anchored to "today"** (it re-anchors every time the app opens, and also seeds a few appointments on the next two days). Your own changes **persist across reloads** — to start fresh, clear the site's data (DevTools → Application → Clear site data). The rows the tests below rely on:
 
 | Appointment | Sonographer | Clinic | Time |
 |---|---|---|---|
@@ -12,25 +12,27 @@ A step-by-step verification script mapping every requirement (and bonus) of the 
 | James Field | Brian Osei | Northside Clinic | 10:30–11:30 |
 | Priya Patel | Alice Chen | Downtown Imaging | 13:00–14:00 |
 
-Clinic hours: **Downtown Imaging 08:00–17:00** · **Northside Clinic 09:00–15:00**.
+Clinic hours: **Downtown Imaging 08:00–17:00** · **Northside Clinic 09:00–15:00** (hover any clinic chip for its hours).
 
 ---
 
 ## 1. Daily schedule display
 
-- [ ] On load, the grid shows 3 columns (Alice Chen, Brian Osei, Carla Reyes), hours 07:00–19:00, and the 3 seeded appointments colored by clinic.
-- [ ] The legend at the top lists each clinic with its color and operating hours.
-- [ ] **← Previous / Today / Next →** change the day and the date heading.
-- [ ] Navigating to tomorrow shows an empty grid plus the empty-state message ("No appointments for this day yet…"). **Today** returns to the seeded view.
+- [ ] On load, the grid shows one column per sonographer (avatar + ARDMS credentials in the header), hours 07:00–19:00, and today's seeded appointments colored by clinic.
+- [ ] On today, a red **now line** marks the current time, the grid opens scrolled to it, and appointments that already ended appear faded.
+- [ ] The **Clinics** legend shows every clinic as a colour-tinted chip; hovering shows its hours, and clicking one filters the schedule to it.
+- [ ] **← Previous / Today / Next →** change the day; the date picker next to the date jumps straight to any day.
+- [ ] Navigating a week ahead shows an empty grid plus the empty-state message ("No appointments for this day yet…"). **Today** returns to the seeded view.
 
 ## 2. Create, edit, delete, move
 
-- [ ] **Create via slot**: click an empty slot (e.g. Carla Reyes at 11:00) → dialog opens with that sonographer and time pre-filled; enter a patient name, Save → the appointment appears in the grid.
+- [ ] **Create via slot**: click an empty slot (e.g. Carla Reyes at 11:00) → dialog opens with that sonographer and time pre-filled; type a patient name (existing names autocomplete and pull up their phone; new names are registered on the fly), Save → the appointment appears in the grid.
 - [ ] **Create via button**: "New appointment" opens the dialog with defaults.
 - [ ] **Edit**: click "Maria Lopez" → dialog opens pre-filled; change the patient name → the grid reflects it.
-- [ ] **Move (time)**: edit Priya Patel and change 13:00 → 15:00 → the card moves down the column.
-- [ ] **Move (sonographer)**: edit an appointment and switch the sonographer → the card moves to the other column.
-- [ ] **Move (day)**: edit an appointment and change the date → it disappears from today and appears on that day.
+- [ ] **Move (drag)**: drag a card up or down to another time, or sideways to another sonographer — it snaps into the slot and persists.
+- [ ] **Move (dialog)**: editing the time, sonographer or date in the dialog still moves it too (the keyboard-accessible path).
+- [ ] **Move (day)**: in the Week view, drag a card to another day's column; dropping it on a date before today asks for confirmation first.
+- [ ] **Book again**: open a saved appointment → "Book again" starts a new booking pre-filled with the same patient, study and clinic.
 - [ ] **Delete**: edit an appointment → Delete → confirmation prompt → the card disappears.
 
 ## 3. Double-booking prevention
@@ -53,7 +55,7 @@ Clinic hours: **Downtown Imaging 08:00–17:00** · **Northside Clinic 09:00–1
 - [ ] DevTools → **Network** tab → reload: real HTTP requests appear — `GET /api/sonographers`, `GET /api/clinics`, `GET /api/appointments?date=...`.
 - [ ] Creating/editing/deleting fires `POST` / `PUT` / `DELETE` with proper status codes (201, 200, 204).
 - [ ] Force a conflict (test 3) and check the Network tab: the server responds **409** — validation is enforced server-side too, not just in the form.
-- [ ] Expected behavior, not a bug: refreshing the page (F5) resets data to the seed — data lives in memory (MSW), by design ("no database required").
+- [ ] **Local-first persistence**: create an appointment, refresh (F5) → it's still there. The mock server stores its data in `localStorage` behind the same `/api/*` boundary — no database to install, yet nothing is lost on reload. (Clear site data to return to the seed.)
 
 ## 6. Loading states, error handling, retry
 
@@ -75,15 +77,29 @@ Clinic hours: **Downtown Imaging 08:00–17:00** · **Northside Clinic 09:00–1
 ## 9. Bonus — Automated checks (terminal)
 
 ```bash
-npm test        # 18/18 passing: 15 domain rules + 3 page integration tests
+npm test        # 64 passing: domain rules, holiday calendar, persistence, week layout + UI flows
 npm run lint    # oxlint with jsx-a11y plugin — no warnings
 npm run build   # strict TypeScript type-check + production bundle
 ```
 
 ## 10. Bonus — Documentation
 
-- [ ] `README.md` covers: how to run, architecture and dependency rule, a 9-row decisions-and-tradeoffs table, testing philosophy, and accessibility notes.
+- [ ] `README.md` covers: how to run, architecture and dependency rule, a decisions-and-tradeoffs table, testing philosophy, and accessibility notes.
+- [ ] The root `README.md` adds a 30-second demo video, the full tech stack, and a demo-to-production infrastructure guide; the Word **User Manual** at the repo root walks every feature with screenshots.
+
+## 11. Beyond the brief — quick spot-checks
+
+The app kept growing after the six requirements were met. One observable check for each addition:
+
+- [ ] **Week view**: the Day/Week toggle shows the whole week; overlapping appointments sit side by side and expand on hover.
+- [ ] **Filters**: the Filters panel (or clicking a clinic chip) narrows both views; the selection survives a reload.
+- [ ] **Holiday-aware**: set an appointment's date to July 4 at Northside Clinic (observes US holidays) → blocked, with open clinics suggested; Downtown (open on holidays) accepts it.
+- [ ] **Manage**: add a clinic/sonographer/patient/study type, edit its colour or credentials → the schedule updates immediately; deleting anything still used by an appointment is refused.
+- [ ] **Reports**: Reports → This week → live preview with totals; grouping and column toggles change it; "Print report" prints exactly the preview.
+- [ ] **Printing**: any saved appointment prints a clean one-page summary (patient, phone, study, clinic, time).
+- [ ] **Tutorial**: the Tutorial button walks 11 spotlight steps over the real UI; Escape leaves at any time.
+- [ ] **Learn more**: the landing page describes what the app does today and the roadmap.
 
 ---
 
-**Pass criteria:** every box checked = all 6 requirements and all 4 bonus items verified.
+**Pass criteria:** every box checked = all 6 requirements and all 4 bonus items verified (sections 1–10), plus every beyond-the-brief feature behaving as described (section 11).
