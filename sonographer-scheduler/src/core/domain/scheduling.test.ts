@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { clinicHolidayClosure, overlaps, validateAppointment } from './scheduling';
-import type { Appointment, AppointmentDraft, Clinic } from './types';
+import { type AppointmentSlot, clinicHolidayClosure, overlaps, validateAppointment } from './scheduling';
+import type { Appointment, Clinic } from './types';
 
 const clinic: Clinic = {
   id: 'c1',
@@ -23,15 +23,15 @@ const booked: Appointment = {
   id: 'a1',
   sonographerId: 's1',
   clinicId: 'c1',
-  patientName: 'Maria Lopez',
+  patientId: 'p1',
+  consultationTypeId: 'ct1',
   start: '2026-07-13T09:00:00',
   end: '2026-07-13T10:00:00',
 };
 
-const draft = (overrides: Partial<AppointmentDraft> = {}): AppointmentDraft => ({
+/** The rules only need the slot: who, when, and (when editing) which appointment. */
+const draft = (overrides: Partial<AppointmentSlot> = {}): AppointmentSlot => ({
   sonographerId: 's1',
-  clinicId: 'c1',
-  patientName: 'Test Patient',
   start: '2026-07-13T10:00:00',
   end: '2026-07-13T11:00:00',
   ...overrides,
@@ -160,7 +160,7 @@ describe('holiday-aware scheduling', () => {
 
   it('rejects booking a holiday-observing clinic on a holiday', () => {
     const result = validateAppointment(
-      draft({ clinicId: 'c2', start: '2026-12-25T09:00:00', end: '2026-12-25T10:00:00' }),
+      draft({ start: '2026-12-25T09:00:00', end: '2026-12-25T10:00:00' }),
       [],
       holidayClinic,
     );

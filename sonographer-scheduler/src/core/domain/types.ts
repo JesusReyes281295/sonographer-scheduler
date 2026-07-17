@@ -16,11 +16,27 @@ export interface Clinic {
   observesHolidays?: boolean;
 }
 
+export interface Patient {
+  id: string;
+  name: string;
+  /** Medical record number. */
+  mrn?: string;
+}
+
+/** A type of ultrasound study a sonographer performs. */
+export interface ConsultationType {
+  id: string;
+  name: string;
+  /** Emoji shown on the appointment card — decorative, the name is what's announced. */
+  icon: string;
+}
+
 export interface Appointment {
   id: string;
   sonographerId: string;
   clinicId: string;
-  patientName: string;
+  patientId: string;
+  consultationTypeId: string;
   /** Local ISO datetime, e.g. "2026-07-13T09:00:00". */
   start: string;
   /** Local ISO datetime, exclusive end of the slot. */
