@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?logo=vite&logoColor=white)
-![Vitest](https://img.shields.io/badge/tests-47%20passing-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/tests-64%20passing-6E9F18?logo=vitest&logoColor=white)
 ![MSW](https://img.shields.io/badge/API-mocked%20with%20MSW-FF6A33)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -32,18 +32,22 @@ Welcome! 👋 This repository is **two things that work together**:
 
 **👉 The full product lives in [`sonographer-scheduler/`](./sonographer-scheduler)** — open that folder for its own detailed README, architecture notes and testing guide.
 
-It's a daily-scheduling tool for sonographers and clinics: a grid where sonographers are columns and hours are rows, and you book, edit, move and cancel appointments across the day.
+It's a scheduling tool for sonographers and clinics: a **day** grid (sonographers as columns, hours as rows) and a **week** calendar, where you book, edit, drag-to-reschedule and cancel appointments.
+
+> 📖 **New here?** Read the **[User Manual (Word)](./Sonographer-Scheduler-User-Manual.docx)** for a step-by-step guide to every screen, or take the in-app **Tutorial** for a guided tour.
 
 **What it does:**
 
-- 📅 **Daily schedule grid** with day-to-day navigation.
-- ➕ **Create, edit, move and cancel** appointments (moving = changing time or sonographer).
+- 📅 **Day & week views** with a one-click toggle and date navigation.
+- ➕ **Create, edit and cancel** appointments, with **printable** summaries for any saved one.
+- 🖱️ **Drag to reschedule** — move an appointment to another time, another sonographer, or (in the week view) another day; editing via the dialog still works too.
+- 🔎 **Filters** by sonographer and clinic, applied to both views.
 - 🧑‍⚕️ **Patients & study types** — book a patient for a type of ultrasound study; the patient field autocompletes and registers new patients on the fly, and each study type carries its own icon.
 - 🏥 **Make it your hospital** — a **Manage** panel to add and edit clinics, sonographers, patients and study types (names, icons, colours, opening hours) with no code changes; entities still used by an appointment are protected from deletion.
 - 🚫 **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — checked instantly on the client *and* re-validated on the server, exactly like a production system.
 - 🇺🇸 **Holiday-aware** — clinics that observe **US federal holidays** block bookings on those days and the app recommends one that's open instead.
 - ⚡ **Optimistic UI** — actions feel instant, with automatic rollback if the server says no.
-- 🧭 Clear **loading, error (with retry) and empty** states everywhere.
+- 🎬 **Guided tutorial** and an **in-app “Learn more” page** describing the product and its roadmap.
 - ♿ **Accessible by default** — full keyboard support, screen-reader labels, focus management.
 
 **Tech stack:** React 19 · TypeScript · Vite · TanStack Query · MSW (mocked REST API — no backend or database needed) · Vitest.
@@ -59,7 +63,7 @@ npm run dev          # opens the app; the mock API runs right in your browser
 Other handy commands (from inside `sonographer-scheduler/`):
 
 ```bash
-npm test             # run the test suite (47 tests: domain rules, holidays, persistence + UI flows)
+npm test             # run the test suite (64 tests: domain rules, holidays, persistence + UI flows)
 npm run lint         # lint with accessibility checks
 npm run build        # type-check + production build
 ```
@@ -112,21 +116,25 @@ Want to use them elsewhere? Copy the [`skills/`](./skills) folder (and `CLAUDE.m
 
 ---
 
-## 🗺️ Roadmap
+## 🚀 Coming soon
 
-Built **one pull request per feature** — expect this list (and this README) to keep evolving:
+Where Sonographer Scheduler is headed next:
 
-- [x] 💾 **Local-first persistence** — your data survives reloads with zero setup (no database to install).
-- [x] 🇺🇸 **Holiday-aware scheduling** — clinics closed on US federal holidays block bookings, and the app recommends one that's open.
-- [x] 🧑‍⚕️ **Patients & consultation types** as first-class, customizable entities (names + icons).
-- [x] 🏥 **Hospital management UI** — set up the app for a specific clinic in minutes.
-- [ ] 🔀 **Drag-and-drop** appointment moving on top of the existing validation.
-- [ ] 🗓️ **Week view** and sonographer/clinic filters.
-- [ ] 🧪 **End-to-end tests** reusing the seed data.
-- [ ] 🎬 **Guided demo tour** to learn every feature (exit anytime with `Escape`).
+- 📧 **Reminders by email, WhatsApp & SMS** — automatic confirmations and reminders before each appointment.
+- 🗓️ **Any appointment type** — schedule consultations, lab work and other hospital services, not just ultrasound.
+- 🎨 **Your hospital, your brand** — add your own logo and colours to the schedule and printouts.
+- 📊 **Weekly reports** — automatic weekly and monthly reports on volume, utilisation and no-shows.
+- 📱 **Patient self-scheduling** — let patients book an open slot online, with the same rules protecting your calendar.
+- 🔔 **Live notifications & waitlists** — fill cancellations instantly from a smart waitlist.
+- 📈 **Analytics dashboard** — spot busy hours, idle rooms and bottlenecks at a glance.
+- 🔗 **EMR integration** — sync patients and results with your hospital information system.
+- 🌐 **Multi-language** — run the whole experience in your team's language.
 
-_Deferred for now:_ a hosted backend (the app is already backend-ready) and
-wiring the review skills into CI/CD.
+---
+
+## 🧱 Technical stack & infrastructure tips
+
+_Coming soon._
 
 ---
 
@@ -135,9 +143,3 @@ wiring the review skills into CI/CD.
 - **Branching:** work happens on feature branches → merged into `development` (the default branch); `qa` and `prod` are promotion targets.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, …).
 - **Skills first:** every skill analyzes before it changes anything and works in small, verifiable steps — the build and tests stay green throughout.
-
----
-
-## 🙌 Questions or ideas?
-
-This is an evolving project — feedback, questions and suggestions are all welcome. Open an issue and let's talk. 💬
