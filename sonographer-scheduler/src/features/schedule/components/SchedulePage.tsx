@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import { addDays, format } from 'date-fns';
 import type { Appointment, AppointmentDraft } from '../../../core/domain/types';
 import { computeMovedSlot, validateAppointment } from '../../../core/domain/scheduling';
@@ -13,6 +13,7 @@ import {
   useClinics,
   useConsultationTypes,
   useCreatePatient,
+  usePatientMutations,
   usePatients,
   useSonographers,
   useWeekAppointments,
@@ -48,7 +49,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: '[data-tour="view"]',
     title: 'Day or week',
-    body: 'Switch between a single day and the whole week here. Your choice is remembered next time you open the app.',
+    body: 'Switch between a single day and the whole week here. The app always opens on the day view.',
   },
   {
     target: '[data-tour="filters"]',
@@ -99,6 +100,7 @@ export function SchedulePage() {
   const mutations = useAppointmentMutations(date);
   const moveAppointment = useMoveAppointment();
   const createPatient = useCreatePatient();
+  const patientMutations = usePatientMutations();
 
   const referenceReady =
     sonographers.data && clinics.data && patients.data && consultationTypes.data;
@@ -138,17 +140,26 @@ export function SchedulePage() {
       ? (sonographers.data ?? [])
       : (sonographers.data ?? []).filter((s) => filters.sonographerIds.includes(s.id));
 
-  /** Reuse an existing patient by name, or register a new one on the fly. */
-  const resolvePatientId = async (name: string): Promise<string> => {
+  /**
+   * Reuse an existing patient by name, or register a new one on the fly. The
+   * phone typed in the form is saved to the patient's record either way, so
+   * reminders always have a current number.
+   */
+  const resolvePatientId = async (name: string, phone?: string): Promise<string> => {
     const trimmed = name.trim();
     const existing = patients.data?.find((p) => p.name.toLowerCase() === trimmed.toLowerCase());
-    if (existing) return existing.id;
-    const created = await createPatient.mutateAsync(trimmed);
+    if (existing) {
+      if (phone && phone !== existing.phone) {
+        await patientMutations.update.mutateAsync({ ...existing, phone });
+      }
+      return existing.id;
+    }
+    const created = await createPatient.mutateAsync({ name: trimmed, phone });
     return created.id;
   };
 
   const handleSubmit = async (values: AppointmentFormValues) => {
-    const patientId = await resolvePatientId(values.patientName);
+    const patientId = await resolvePatientId(values.patientName, values.patientPhone);
     const draft: AppointmentDraft = {
       patientId,
       consultationTypeId: values.consultationTypeId,
@@ -221,11 +232,16 @@ export function SchedulePage() {
     });
   };
 
+  const editPatient =
+    dialog?.mode === 'edit'
+      ? patients.data?.find((p) => p.id === dialog.appointment.patientId)
+      : undefined;
   const formInitial: Partial<AppointmentFormValues> =
     dialog?.mode === 'edit'
       ? {
           id: dialog.appointment.id,
-          patientName: patients.data?.find((p) => p.id === dialog.appointment.patientId)?.name ?? '',
+          patientName: editPatient?.name ?? '',
+          patientPhone: editPatient?.phone,
           sonographerId: dialog.appointment.sonographerId,
           clinicId: dialog.appointment.clinicId,
           consultationTypeId: dialog.appointment.consultationTypeId,
@@ -302,6 +318,15 @@ export function SchedulePage() {
               : format(atNoon(date), 'EEEE, MMMM d, yyyy')}
           </p>
 
+          {/* Jump straight to any date instead of clicking Next dozens of times. */}
+          <input
+            type="date"
+            className="toolbar__jump"
+            value={date}
+            onChange={(e) => e.target.value && setDate(e.target.value)}
+            aria-label="Jump to date"
+          />
+
           {sonographers.data && clinics.data && (
             <div className="toolbar__filters">
               <ScheduleFilters
@@ -318,14 +343,38 @@ export function SchedulePage() {
       {clinics.data && (
         <div className="legend-row">
           <span className="legend-row__label">Clinics</span>
-          <ul className="legend" aria-label="Clinics and their operating hours">
-            {clinics.data.map((clinic) => (
-              <li key={clinic.id}>
-                <span className="legend__dot" style={{ backgroundColor: clinic.color }} aria-hidden="true" />
-                {clinic.icon && <span aria-hidden="true">{clinic.icon} </span>}
-                {clinic.name} ({clinic.openTime}–{clinic.closeTime})
-              </li>
-            ))}
+          {/* Every clinic is always visible as a colour-tinted chip; clicking one
+              filters the schedule to it (in sync with the Filters panel). */}
+          <ul className="legend" aria-label="Clinics — click one to filter the schedule">
+            {clinics.data.map((clinic) => {
+              const active = filters.clinicIds.includes(clinic.id);
+              const dimmed = filters.clinicIds.length > 0 && !active;
+              return (
+                <li key={clinic.id}>
+                  <button
+                    type="button"
+                    className={`legend-chip${dimmed ? ' legend-chip--off' : ''}`}
+                    style={{ '--clinic-color': clinic.color } as CSSProperties & Record<`--${string}`, string>}
+                    aria-pressed={active}
+                    title={`${clinic.openTime}–${clinic.closeTime}${
+                      clinic.observesHolidays ? ' · closed on US holidays' : ''
+                    } — click to filter`}
+                    onClick={() =>
+                      setFilters({
+                        ...filters,
+                        clinicIds: active
+                          ? filters.clinicIds.filter((id) => id !== clinic.id)
+                          : [...filters.clinicIds, clinic.id],
+                      })
+                    }
+                  >
+                    <span className="legend__dot" style={{ backgroundColor: clinic.color }} aria-hidden="true" />
+                    {clinic.icon && <span aria-hidden="true">{clinic.icon} </span>}
+                    {clinic.name}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -388,6 +437,7 @@ export function SchedulePage() {
             />
           ) : (
             <ScheduleGrid
+              date={date}
               sonographers={visibleSonographers}
               clinics={clinics.data!}
               patients={patients.data!}

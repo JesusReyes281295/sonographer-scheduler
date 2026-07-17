@@ -108,7 +108,7 @@ export const useConsultationTypeMutations = () =>
 export function useCreatePatient() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => patientsApi.create({ name }),
+    mutationFn: (draft: { name: string; phone?: string }) => patientsApi.create(draft),
     onSuccess: (patient) => {
       queryClient.setQueryData<Patient[]>(scheduleKeys.patients, (current = []) => [
         ...current,

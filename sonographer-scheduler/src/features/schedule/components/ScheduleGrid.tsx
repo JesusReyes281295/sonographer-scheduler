@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+import { format } from 'date-fns';
 import type {
   Appointment,
   Clinic,
@@ -15,13 +17,17 @@ import {
   SLOTS,
   SLOT_MINUTES,
 } from '../gridConstants';
+import { avatarColor, initials } from '../avatar';
 import { type DropTarget, useAppointmentDrag } from '../hooks/useAppointmentDrag';
+import { useNowMinutes } from '../hooks/useNowMinutes';
 import styles from './ScheduleGrid.module.css';
 
 /** Below this, the time/clinic line would be cut in half — show the name only. */
 const DETAILS_MIN_HEIGHT = 44;
 
 interface ScheduleGridProps {
+  /** The day being displayed, "yyyy-MM-dd" — the now line only shows on today. */
+  date: string;
   sonographers: Sonographer[];
   clinics: Clinic[];
   patients: Patient[];
@@ -35,6 +41,7 @@ interface ScheduleGridProps {
 }
 
 export function ScheduleGrid({
+  date,
   sonographers,
   clinics,
   patients,
@@ -45,9 +52,25 @@ export function ScheduleGrid({
   onAppointmentMove,
 }: ScheduleGridProps) {
   const drag = useAppointmentDrag(onAppointmentMove);
+  const wrapperRef = useRef<HTMLElement>(null);
+
+  const nowMinutes = useNowMinutes();
+  const isToday = date === format(new Date(), 'yyyy-MM-dd');
+  const nowTop = (nowMinutes - DAY_START_MINUTES) * PX_PER_MINUTE;
+  const showNow = isToday && nowTop >= 0 && nowTop <= DAY_HEIGHT;
+
+  // Open the grid around the current time instead of always at 07:00.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (el && showNow) {
+      el.scrollTop = Math.max(0, nowTop - el.clientHeight / 3);
+    }
+    // Only on mount: don't fight the user's scrolling as the clock ticks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <section className={styles.wrapper} aria-label="Daily schedule by sonographer">
+    <section ref={wrapperRef} className={styles.wrapper} aria-label="Daily schedule by sonographer">
       <div
         className={`${styles.grid}${drag.draggingId ? ` ${styles.dragActive}` : ''}`}
         style={{ gridTemplateColumns: `72px repeat(${sonographers.length}, minmax(160px, 1fr))` }}
@@ -55,7 +78,20 @@ export function ScheduleGrid({
         <div className={styles.corner} />
         {sonographers.map((sonographer) => (
           <div key={sonographer.id} className={styles.columnHeader}>
-            {sonographer.name}
+            {/* Avatar + credentials make it obvious these columns are clinical staff. */}
+            <span
+              className={styles.avatar}
+              style={{ backgroundColor: avatarColor(sonographer.name) }}
+              aria-hidden="true"
+            >
+              {initials(sonographer.name)}
+            </span>
+            <span className={styles.headerText}>
+              <span className={styles.headerName}>{sonographer.name}</span>
+              {sonographer.credentials && (
+                <span className={styles.headerRole}>{sonographer.credentials}</span>
+              )}
+            </span>
           </div>
         ))}
 
@@ -139,6 +175,8 @@ export function ScheduleGrid({
                   </button>
                 );
               })}
+
+            {showNow && <div className={styles.nowLine} style={{ top: nowTop }} aria-hidden="true" />}
           </div>
         ))}
       </div>

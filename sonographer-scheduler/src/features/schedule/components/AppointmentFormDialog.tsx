@@ -20,6 +20,8 @@ const NOTE_SUGGESTIONS = ['Urgent', 'Possibly cancelled', 'Follow-up needed', 'N
 export interface AppointmentFormValues {
   id?: string;
   patientName: string;
+  /** Contact number, kept on the patient's record for appointment reminders. */
+  patientPhone?: string;
   sonographerId: string;
   clinicId: string;
   consultationTypeId: string;
@@ -65,6 +67,7 @@ export function AppointmentFormDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const [patientName, setPatientName] = useState(initial.patientName ?? '');
+  const [patientPhone, setPatientPhone] = useState(initial.patientPhone ?? '');
   const [sonographerId, setSonographerId] = useState(initial.sonographerId ?? sonographers[0]?.id ?? '');
   const [clinicId, setClinicId] = useState(initial.clinicId ?? clinics[0]?.id ?? '');
   const [consultationTypeId, setConsultationTypeId] = useState(
@@ -79,6 +82,17 @@ export function AppointmentFormDialog({
   useEffect(() => {
     dialogRef.current?.showModal();
   }, []);
+
+  // When the typed name matches a registered patient, pull up their phone on file.
+  const knownPatient = patients.find(
+    (p) => p.name.toLowerCase() === patientName.trim().toLowerCase(),
+  );
+  const knownPatientId = knownPatient?.id;
+  useEffect(() => {
+    if (knownPatient) setPatientPhone(knownPatient.phone ?? '');
+    // Refill only when the *matched patient* changes, not on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [knownPatientId]);
 
   // Holiday awareness: if the chosen clinic is closed on the chosen day, warn and
   // suggest clinics that are open that day so the user can rebook in one tap.
@@ -103,6 +117,7 @@ export function AppointmentFormDialog({
     const values: AppointmentFormValues = {
       id: initial.id,
       patientName: patientName.trim(),
+      patientPhone: patientPhone.trim() || undefined,
       sonographerId,
       clinicId,
       consultationTypeId,
@@ -187,6 +202,20 @@ export function AppointmentFormDialog({
             ))}
           </datalist>
           <p className={styles.hint}>Pick an existing patient, or type a new name to register them.</p>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor={`${formId}-phone`}>Patient phone</label>
+          <input
+            id={`${formId}-phone`}
+            type="tel"
+            value={patientPhone}
+            onChange={(e) => setPatientPhone(e.target.value)}
+            maxLength={25}
+            autoComplete="off"
+            placeholder="(555) 123-4567"
+          />
+          <p className={styles.hint}>Used for appointment reminders. Saved to the patient&apos;s record.</p>
         </div>
 
         <div className={styles.field}>

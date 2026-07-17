@@ -44,6 +44,12 @@ export function PrintableAppointment({
             {patient?.mrn ? ` · MRN ${patient.mrn}` : ''}
           </dd>
         </div>
+        {patient?.phone && (
+          <div>
+            <dt>Phone</dt>
+            <dd>{patient.phone}</dd>
+          </div>
+        )}
         <div>
           <dt>Study</dt>
           <dd>{type?.name ?? '—'}</dd>

@@ -213,17 +213,26 @@ export function ManagementDialog({ onClose }: { onClose: () => void }) {
           <EntityManager<Sonographer>
             label="sonographer"
             items={sonographers.data}
-            emptyDraft={() => ({ name: '' })}
-            summary={() => 'Appears as a column in the schedule'}
+            emptyDraft={() => ({ name: '', credentials: '' })}
+            summary={(sonographer) => sonographer.credentials ?? 'Appears as a column in the schedule'}
             renderFields={(draft, update) => (
-              <Field label="Name">
-                <input
-                  value={draft.name}
-                  onChange={(e) => update({ name: e.target.value })}
-                  required
-                  maxLength={60}
-                />
-              </Field>
+              <>
+                <Field label="Name">
+                  <input
+                    value={draft.name}
+                    onChange={(e) => update({ name: e.target.value })}
+                    required
+                    maxLength={60}
+                  />
+                </Field>
+                <Field label="Credentials (optional, e.g. RDMS, RVT)">
+                  <input
+                    value={draft.credentials ?? ''}
+                    onChange={(e) => update({ credentials: e.target.value })}
+                    maxLength={40}
+                  />
+                </Field>
+              </>
             )}
             onCreate={(draft) => sonographerMutations.create.mutateAsync(draft)}
             onUpdate={(sonographer) => sonographerMutations.update.mutateAsync(sonographer)}
@@ -235,8 +244,10 @@ export function ManagementDialog({ onClose }: { onClose: () => void }) {
           <EntityManager<Patient>
             label="patient"
             items={patients.data}
-            emptyDraft={() => ({ name: '', mrn: '' })}
-            summary={(patient) => patient.mrn ?? 'No medical record number'}
+            emptyDraft={() => ({ name: '', mrn: '', phone: '' })}
+            summary={(patient) =>
+              [patient.mrn ?? 'No MRN', patient.phone ?? 'no phone on file'].join(' · ')
+            }
             renderFields={(draft, update) => (
               <>
                 <Field label="Name">
@@ -252,6 +263,15 @@ export function ManagementDialog({ onClose }: { onClose: () => void }) {
                     value={draft.mrn ?? ''}
                     onChange={(e) => update({ mrn: e.target.value })}
                     maxLength={30}
+                  />
+                </Field>
+                <Field label="Phone (for appointment reminders)">
+                  <input
+                    type="tel"
+                    value={draft.phone ?? ''}
+                    onChange={(e) => update({ phone: e.target.value })}
+                    maxLength={25}
+                    placeholder="(555) 123-4567"
                   />
                 </Field>
               </>

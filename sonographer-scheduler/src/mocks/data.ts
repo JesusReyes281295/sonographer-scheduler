@@ -1,14 +1,16 @@
 import { addDays, format } from 'date-fns';
 import type { Appointment, Clinic, ConsultationType, Patient, Sonographer } from '../core/domain/types';
 
+// Credentials are real ARDMS certifications: RDMS (general), RDCS (cardiac),
+// RVT (vascular), RMSKS (musculoskeletal) — sonographers, not physicians.
 export const sonographers: Sonographer[] = [
-  { id: 's1', name: 'Alice Chen' },
-  { id: 's2', name: 'Brian Osei' },
-  { id: 's3', name: 'Carla Reyes' },
-  { id: 's4', name: 'Diego Martins' },
-  { id: 's5', name: 'Emma Novak' },
-  { id: 's6', name: 'Farah Haddad' },
-  { id: 's7', name: 'Grace Kim' },
+  { id: 's1', name: 'Alice Chen', credentials: 'RDMS, RVT' },
+  { id: 's2', name: 'Brian Osei', credentials: 'RDCS' },
+  { id: 's3', name: 'Carla Reyes', credentials: 'RDMS, RMSKS' },
+  { id: 's4', name: 'Diego Martins', credentials: 'RDMS' },
+  { id: 's5', name: 'Emma Novak', credentials: 'RDCS, RVT' },
+  { id: 's6', name: 'Farah Haddad', credentials: 'RDMS' },
+  { id: 's7', name: 'Grace Kim', credentials: 'RDMS, RVT' },
 ];
 
 // A mix of hospital-affiliated sites that stay open on public holidays and
@@ -40,21 +42,23 @@ export const consultationTypes: ConsultationType[] = [
   { id: 'ct8', name: 'Breast ultrasound', icon: '🎗️' },
 ];
 
+// A couple of patients have no phone on file yet, so the booking form's
+// "ask for the number" flow shows up naturally in the sample data.
 export const seedPatients: Patient[] = [
-  { id: 'p1', name: 'Maria Lopez', mrn: 'MRN-1042' },
-  { id: 'p2', name: 'James Field', mrn: 'MRN-1043' },
-  { id: 'p3', name: 'Priya Patel', mrn: 'MRN-1044' },
-  { id: 'p4', name: 'Robert King', mrn: 'MRN-1045' },
-  { id: 'p5', name: 'Susan Lee', mrn: 'MRN-1046' },
+  { id: 'p1', name: 'Maria Lopez', mrn: 'MRN-1042', phone: '(555) 201-4832' },
+  { id: 'p2', name: 'James Field', mrn: 'MRN-1043', phone: '(555) 315-9077' },
+  { id: 'p3', name: 'Priya Patel', mrn: 'MRN-1044', phone: '(555) 428-1163' },
+  { id: 'p4', name: 'Robert King', mrn: 'MRN-1045', phone: '(555) 502-7749' },
+  { id: 'p5', name: 'Susan Lee', mrn: 'MRN-1046', phone: '(555) 613-2280' },
   { id: 'p6', name: 'Thomas Ng', mrn: 'MRN-1047' },
-  { id: 'p7', name: 'Olivia Brown', mrn: 'MRN-1048' },
-  { id: 'p8', name: 'William Davis', mrn: 'MRN-1049' },
-  { id: 'p9', name: 'Nina Alvarez', mrn: 'MRN-1050' },
-  { id: 'p10', name: 'David Cohen', mrn: 'MRN-1051' },
+  { id: 'p7', name: 'Olivia Brown', mrn: 'MRN-1048', phone: '(555) 724-5518' },
+  { id: 'p8', name: 'William Davis', mrn: 'MRN-1049', phone: '(555) 830-6641' },
+  { id: 'p9', name: 'Nina Alvarez', mrn: 'MRN-1050', phone: '(555) 917-3305' },
+  { id: 'p10', name: 'David Cohen', mrn: 'MRN-1051', phone: '(555) 108-8892' },
   { id: 'p11', name: 'George Hall', mrn: 'MRN-1052' },
-  { id: 'p12', name: 'Hannah Silva', mrn: 'MRN-1053' },
-  { id: 'p13', name: 'Ibrahim Khan', mrn: 'MRN-1054' },
-  { id: 'p14', name: 'Julia Moreau', mrn: 'MRN-1055' },
+  { id: 'p12', name: 'Hannah Silva', mrn: 'MRN-1053', phone: '(555) 219-4470' },
+  { id: 'p13', name: 'Ibrahim Khan', mrn: 'MRN-1054', phone: '(555) 326-7154' },
+  { id: 'p14', name: 'Julia Moreau', mrn: 'MRN-1055', phone: '(555) 435-0928' },
 ];
 
 // Seed appointments are generated around "today" so the app always opens with a

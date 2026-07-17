@@ -1,6 +1,8 @@
 export interface Sonographer {
   id: string;
   name: string;
+  /** Professional credentials shown under the name (e.g. ARDMS "RDMS, RVT"). */
+  credentials?: string;
 }
 
 export interface Clinic {
@@ -23,6 +25,8 @@ export interface Patient {
   name: string;
   /** Medical record number. */
   mrn?: string;
+  /** Contact number — collected at booking, used for appointment reminders. */
+  phone?: string;
 }
 
 /** A type of ultrasound study a sonographer performs. */

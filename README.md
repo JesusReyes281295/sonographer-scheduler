@@ -38,11 +38,14 @@ It's a scheduling tool for sonographers and clinics: a **day** grid (sonographer
 
 **What it does:**
 
-- 📅 **Day & week views** with a one-click toggle and date navigation.
+- 📅 **Day & week views** with a one-click toggle and date navigation — the app always opens on today's day view.
+- 🧭 **Never lose your place** — a red "now" line marks the current time, the grid opens scrolled to it, the hours column stays visible while you scroll, and a date picker jumps straight to any day.
 - ➕ **Create, edit and cancel** appointments, with **printable** summaries for any saved one.
-- 🖱️ **Drag to reschedule** — move an appointment to another time, another sonographer, or (in the week view) another day; editing via the dialog still works too.
-- 🔎 **Filters** by sonographer and clinic, applied to both views.
+- 🖱️ **Drag to reschedule** — move an appointment to another time, another sonographer, or (in the week view) another day, with a confirmation before moving one into a date that already passed; editing via the dialog still works too.
+- 🔎 **Filters** by sonographer and clinic — from the Filters panel, or by clicking a clinic chip in the always-visible colour-tinted legend.
+- 🎓 **Clinical staff, visibly** — every sonographer column shows an initials avatar and their professional credentials (RDMS, RDCS, RVT…), editable in Manage.
 - 🧑‍⚕️ **Patients & study types** — book a patient for a type of ultrasound study; the patient field autocompletes and registers new patients on the fly, and each study type carries its own icon.
+- 📞 **Patient phone collected at booking** — auto-filled from the patient's record, saved back when it changes, and shown on printed summaries; ready for the reminders roadmap below.
 - 🏥 **Make it your hospital** — a **Manage** panel to add and edit clinics, sonographers, patients and study types (names, icons, colours, opening hours) with no code changes; entities still used by an appointment are protected from deletion.
 - 🚫 **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — checked instantly on the client *and* re-validated on the server, exactly like a production system.
 - 🇺🇸 **Holiday-aware** — clinics that observe **US federal holidays** block bookings on those days and the app recommends one that's open instead.

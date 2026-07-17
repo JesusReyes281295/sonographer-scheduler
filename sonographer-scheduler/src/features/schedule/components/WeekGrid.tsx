@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { type CSSProperties, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import type {
   Appointment,
@@ -18,6 +18,7 @@ import {
   SLOT_MINUTES,
 } from '../gridConstants';
 import { type DropTarget, useAppointmentDrag } from '../hooks/useAppointmentDrag';
+import { useNowMinutes } from '../hooks/useNowMinutes';
 import { layoutDayAppointments } from '../weekLayout';
 import styles from './WeekGrid.module.css';
 
@@ -49,10 +50,25 @@ export function WeekGrid({
   onAppointmentMove,
 }: WeekGridProps) {
   const drag = useAppointmentDrag(onAppointmentMove);
+  const wrapperRef = useRef<HTMLElement>(null);
   const today = format(new Date(), 'yyyy-MM-dd');
 
+  const nowMinutes = useNowMinutes();
+  const nowTop = (nowMinutes - DAY_START_MINUTES) * PX_PER_MINUTE;
+  const nowVisible = nowTop >= 0 && nowTop <= DAY_HEIGHT;
+
+  // Open the week around the current time instead of always at 07:00.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (el && nowVisible) {
+      el.scrollTop = Math.max(0, nowTop - el.clientHeight / 3);
+    }
+    // Only on mount: don't fight the user's scrolling as the clock ticks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <section className={styles.wrapper} aria-label="Weekly schedule">
+    <section ref={wrapperRef} className={styles.wrapper} aria-label="Weekly schedule">
       <div className={`${styles.grid}${drag.draggingId ? ` ${styles.dragActive}` : ''}`}>
         <div className={styles.corner} />
         {days.map((day) => (
@@ -78,10 +94,16 @@ export function WeekGrid({
 
         {days.map((day) => {
           const laidOut = layoutDayAppointments(appointmentsByDay[day] ?? []);
-          const weekday = format(atNoon(day), 'EEEE');
+          const noon = atNoon(day);
+          const weekday = format(noon, 'EEEE');
+          const isWeekend = noon.getDay() === 0 || noon.getDay() === 6;
 
           return (
-            <div key={day} className={styles.column} style={{ height: DAY_HEIGHT }}>
+            <div
+              key={day}
+              className={`${styles.column}${isWeekend ? ` ${styles.weekend}` : ''}`}
+              style={{ height: DAY_HEIGHT }}
+            >
               {/* Slots stay real buttons: keyboard/click "create here", and drop targets. */}
               {SLOTS.map((minutes) => (
                 <button
@@ -146,6 +168,10 @@ export function WeekGrid({
                   </button>
                 );
               })}
+
+              {day === today && nowVisible && (
+                <div className={styles.nowLine} style={{ top: nowTop }} aria-hidden="true" />
+              )}
             </div>
           );
         })}
