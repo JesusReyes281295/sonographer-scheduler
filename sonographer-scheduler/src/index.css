@@ -288,8 +288,10 @@ button:disabled {
   font-size: 14px;
 }
 
-/* Print: hide the whole app and show only the appointment summary. */
-.print-appointment {
+/* Print: hide the whole app and show only the print copy (an appointment
+   summary, or the report built in the Reports dialog). */
+.print-appointment,
+.print-report {
   display: none;
 }
 
@@ -297,9 +299,28 @@ button:disabled {
   body * {
     visibility: hidden;
   }
+  /* An open modal (e.g. the Reports dialog) must not overlay the printout. */
+  dialog,
+  dialog::backdrop {
+    display: none;
+  }
   .print-appointment,
-  .print-appointment * {
+  .print-appointment *,
+  .print-report,
+  .print-report * {
     visibility: visible;
+  }
+  .print-report {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 32px;
+    color: #000;
+  }
+  .print-report tr {
+    break-inside: avoid;
   }
   .print-appointment {
     display: block;

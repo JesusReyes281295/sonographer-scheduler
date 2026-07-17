@@ -23,6 +23,7 @@ import { AppointmentFormDialog } from './AppointmentFormDialog';
 import type { AppointmentFormValues } from './AppointmentFormDialog';
 import { ManagementDialog } from './ManagementDialog';
 import { PrintableAppointment } from './PrintableAppointment';
+import { ReportDialog } from './ReportDialog';
 import { ScheduleGrid } from './ScheduleGrid';
 import { ScheduleFilters } from './ScheduleFilters';
 import { EMPTY_FILTERS, type Filters } from '../filters';
@@ -72,6 +73,11 @@ const TOUR_STEPS: TourStep[] = [
     body: 'Add or edit clinics, sonographers, patients and study types in the Manage panel — the schedule updates right away.',
   },
   {
+    target: '[data-tour="reports"]',
+    title: 'Report & print',
+    body: 'Build a report of any date range — filter it, group it, choose its columns, and print it in one click.',
+  },
+  {
     title: "You're all set 🎉",
     body: 'That’s the tour. Reopen it anytime from the Tutorial button. Happy scheduling!',
   },
@@ -84,6 +90,7 @@ export function SchedulePage() {
   const [filters, setFilters] = usePersistentState<Filters>('scheduler.filters', EMPTY_FILTERS);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [managing, setManaging] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   /** Why the last drag-and-drop move was refused (null when there's nothing to show). */
@@ -265,6 +272,9 @@ export function SchedulePage() {
             </button>
             <button type="button" className="button--ghost" onClick={() => setTourOpen(true)}>
               Tutorial
+            </button>
+            <button type="button" data-tour="reports" onClick={() => setReporting(true)}>
+              Reports
             </button>
             <button type="button" data-tour="manage" onClick={() => setManaging(true)}>
               Manage
@@ -461,6 +471,17 @@ export function SchedulePage() {
       )}
 
       {managing && <ManagementDialog onClose={() => setManaging(false)} />}
+
+      {reporting && referenceReady && (
+        <ReportDialog
+          initialDate={date}
+          sonographers={sonographers.data!}
+          clinics={clinics.data!}
+          patients={patients.data!}
+          consultationTypes={consultationTypes.data!}
+          onClose={() => setReporting(false)}
+        />
+      )}
 
       {tourOpen && <TutorialTour steps={TOUR_STEPS} onClose={() => setTourOpen(false)} />}
 
