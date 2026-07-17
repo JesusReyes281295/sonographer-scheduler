@@ -1,4 +1,10 @@
-import type { Appointment, Clinic, Sonographer } from '../../../core/domain/types';
+import type {
+  Appointment,
+  Clinic,
+  ConsultationType,
+  Patient,
+  Sonographer,
+} from '../../../core/domain/types';
 import { minutesOfDay, minutesToTime } from '../../../core/domain/time';
 import styles from './ScheduleGrid.module.css';
 
@@ -6,6 +12,10 @@ const DAY_START_HOUR = 7;
 const DAY_END_HOUR = 19;
 const PX_PER_MINUTE = 1;
 const SLOT_MINUTES = 30;
+/** Enough for the patient name alone. */
+const MIN_CARD_HEIGHT = 24;
+/** Below this, the time/clinic line would be cut in half — show the name only. */
+const DETAILS_MIN_HEIGHT = 44;
 
 const DAY_START_MINUTES = DAY_START_HOUR * 60;
 const DAY_HEIGHT = (DAY_END_HOUR - DAY_START_HOUR) * 60 * PX_PER_MINUTE;
@@ -19,6 +29,8 @@ const SLOTS = Array.from(
 interface ScheduleGridProps {
   sonographers: Sonographer[];
   clinics: Clinic[];
+  patients: Patient[];
+  consultationTypes: ConsultationType[];
   appointments: Appointment[];
   /** Called with the sonographer and the slot's start (minutes since midnight). */
   onSlotClick: (sonographerId: string, startMinutes: number) => void;
@@ -28,6 +40,8 @@ interface ScheduleGridProps {
 export function ScheduleGrid({
   sonographers,
   clinics,
+  patients,
+  consultationTypes,
   appointments,
   onSlotClick,
   onAppointmentClick,
@@ -78,14 +92,20 @@ export function ScheduleGrid({
               .filter((appointment) => appointment.sonographerId === sonographer.id)
               .map((appointment) => {
                 const clinic = clinics.find((c) => c.id === appointment.clinicId);
+                const patientName =
+                  patients.find((p) => p.id === appointment.patientId)?.name ?? 'Unknown patient';
+                const type = consultationTypes.find((t) => t.id === appointment.consultationTypeId);
                 const start = new Date(appointment.start);
                 const end = new Date(appointment.end);
                 const top = (minutesOfDay(start) - DAY_START_MINUTES) * PX_PER_MINUTE;
                 const height = Math.max(
                   ((end.getTime() - start.getTime()) / 60_000) * PX_PER_MINUTE,
-                  24,
+                  MIN_CARD_HEIGHT,
                 );
                 const timeRange = `${appointment.start.slice(11, 16)}–${appointment.end.slice(11, 16)}`;
+                // Short appointments only have room for the name; the full details
+                // stay available via the tooltip and the aria-label.
+                const showDetails = height >= DETAILS_MIN_HEIGHT;
 
                 return (
                   <button
@@ -94,12 +114,18 @@ export function ScheduleGrid({
                     className={styles.appointment}
                     style={{ top, height, backgroundColor: clinic?.color }}
                     onClick={() => onAppointmentClick(appointment)}
-                    aria-label={`Edit appointment: ${appointment.patientName}, ${timeRange}, ${clinic?.name ?? 'unknown clinic'}, with ${sonographer.name}`}
+                    title={`${patientName} · ${type?.name ?? 'Consultation'} · ${timeRange} · ${clinic?.name ?? ''}`}
+                    aria-label={`Edit appointment: ${patientName}, ${type?.name ?? 'consultation'}, ${timeRange}, ${clinic?.name ?? 'unknown clinic'}, with ${sonographer.name}`}
                   >
-                    <strong>{appointment.patientName}</strong>
-                    <span>
-                      {timeRange} · {clinic?.name}
-                    </span>
+                    <strong>
+                      {type && <span aria-hidden="true">{type.icon} </span>}
+                      {patientName}
+                    </strong>
+                    {showDetails && (
+                      <span>
+                        {timeRange} · {clinic?.name}
+                      </span>
+                    )}
                   </button>
                 );
               })}
