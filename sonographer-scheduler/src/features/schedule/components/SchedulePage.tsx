@@ -15,6 +15,7 @@ import {
 } from '../hooks/useScheduleData';
 import { AppointmentFormDialog } from './AppointmentFormDialog';
 import type { AppointmentFormValues } from './AppointmentFormDialog';
+import { ManagementDialog } from './ManagementDialog';
 import { ScheduleGrid } from './ScheduleGrid';
 
 type DialogState =
@@ -29,6 +30,7 @@ const atNoon = (date: string) => new Date(`${date}T12:00:00`);
 export function SchedulePage() {
   const [date, setDate] = useState(() => toDateParam(new Date()));
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [managing, setManaging] = useState(false);
 
   const sonographers = useSonographers();
   const clinics = useClinics();
@@ -120,6 +122,9 @@ export function SchedulePage() {
           </button>
         </nav>
         <p className="toolbar__date">{format(atNoon(date), 'EEEE, MMMM d, yyyy')}</p>
+        <button type="button" onClick={() => setManaging(true)}>
+          Manage
+        </button>
         <button
           type="button"
           className="button--primary"
@@ -134,6 +139,7 @@ export function SchedulePage() {
           {clinics.data.map((clinic) => (
             <li key={clinic.id}>
               <span className="legend__dot" style={{ backgroundColor: clinic.color }} aria-hidden="true" />
+              {clinic.icon && <span aria-hidden="true">{clinic.icon} </span>}
               {clinic.name} ({clinic.openTime}–{clinic.closeTime})
             </li>
           ))}
@@ -182,6 +188,8 @@ export function SchedulePage() {
           />
         </>
       )}
+
+      {managing && <ManagementDialog onClose={() => setManaging(false)} />}
 
       {dialog && isReady && (
         <AppointmentFormDialog

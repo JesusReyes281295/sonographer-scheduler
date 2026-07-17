@@ -8,23 +8,27 @@ import type {
   Sonographer,
 } from '../../../core/domain/types';
 
-export const sonographersApi = {
-  list: () => http<Sonographer[]>('/api/sonographers'),
-};
+/** Typed REST calls for one configurable collection. */
+export interface CrudApi<T extends { id: string }> {
+  list: () => Promise<T[]>;
+  create: (draft: Omit<T, 'id'>) => Promise<T>;
+  update: (item: T) => Promise<T>;
+  remove: (id: string) => Promise<void>;
+}
 
-export const clinicsApi = {
-  list: () => http<Clinic[]>('/api/clinics'),
-};
+function crudApi<T extends { id: string }>(path: string): CrudApi<T> {
+  return {
+    list: () => http<T[]>(path),
+    create: (draft) => http<T>(path, { method: 'POST', body: JSON.stringify(draft) }),
+    update: (item) => http<T>(`${path}/${item.id}`, { method: 'PUT', body: JSON.stringify(item) }),
+    remove: (id) => http<void>(`${path}/${id}`, { method: 'DELETE' }),
+  };
+}
 
-export const consultationTypesApi = {
-  list: () => http<ConsultationType[]>('/api/consultation-types'),
-};
-
-export const patientsApi = {
-  list: () => http<Patient[]>('/api/patients'),
-  create: (patient: { name: string; mrn?: string }) =>
-    http<Patient>('/api/patients', { method: 'POST', body: JSON.stringify(patient) }),
-};
+export const sonographersApi = crudApi<Sonographer>('/api/sonographers');
+export const clinicsApi = crudApi<Clinic>('/api/clinics');
+export const patientsApi = crudApi<Patient>('/api/patients');
+export const consultationTypesApi = crudApi<ConsultationType>('/api/consultation-types');
 
 export const appointmentsApi = {
   listByDate: (date: string) => http<Appointment[]>(`/api/appointments?date=${date}`),

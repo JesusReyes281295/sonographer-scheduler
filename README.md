@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?logo=vite&logoColor=white)
-![Vitest](https://img.shields.io/badge/tests-40%20passing-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/tests-44%20passing-6E9F18?logo=vitest&logoColor=white)
 ![MSW](https://img.shields.io/badge/API-mocked%20with%20MSW-FF6A33)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -39,6 +39,7 @@ It's a daily-scheduling tool for sonographers and clinics: a grid where sonograp
 - 📅 **Daily schedule grid** with day-to-day navigation.
 - ➕ **Create, edit, move and cancel** appointments (moving = changing time or sonographer).
 - 🧑‍⚕️ **Patients & study types** — book a patient for a type of ultrasound study; the patient field autocompletes and registers new patients on the fly, and each study type carries its own icon.
+- 🏥 **Make it your hospital** — a **Manage** panel to add and edit clinics, sonographers, patients and study types (names, icons, colours, opening hours) with no code changes; entities still used by an appointment are protected from deletion.
 - 🚫 **Double-booking prevention** per sonographer and **clinic operating-hours enforcement** — checked instantly on the client *and* re-validated on the server, exactly like a production system.
 - 🇺🇸 **Holiday-aware** — clinics that observe **US federal holidays** block bookings on those days and the app recommends one that's open instead.
 - ⚡ **Optimistic UI** — actions feel instant, with automatic rollback if the server says no.
@@ -58,7 +59,7 @@ npm run dev          # opens the app; the mock API runs right in your browser
 Other handy commands (from inside `sonographer-scheduler/`):
 
 ```bash
-npm test             # run the test suite (40 tests: domain rules, holidays, persistence + UI flows)
+npm test             # run the test suite (44 tests: domain rules, holidays, persistence + UI flows)
 npm run lint         # lint with accessibility checks
 npm run build        # type-check + production build
 ```
@@ -118,7 +119,7 @@ Built **one pull request per feature** — expect this list (and this README) to
 - [x] 💾 **Local-first persistence** — your data survives reloads with zero setup (no database to install).
 - [x] 🇺🇸 **Holiday-aware scheduling** — clinics closed on US federal holidays block bookings, and the app recommends one that's open.
 - [x] 🧑‍⚕️ **Patients & consultation types** as first-class, customizable entities (names + icons).
-- [ ] 🏥 **Hospital management UI** — set up the app for a specific clinic in minutes.
+- [x] 🏥 **Hospital management UI** — set up the app for a specific clinic in minutes.
 - [ ] 🔀 **Drag-and-drop** appointment moving on top of the existing validation.
 - [ ] 🗓️ **Week view** and sonographer/clinic filters.
 - [ ] 🧪 **End-to-end tests** reusing the seed data.
