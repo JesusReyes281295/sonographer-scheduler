@@ -53,24 +53,39 @@ const TOUR_STEPS: TourStep[] = [
     body: 'Switch between a single day and the whole week here. The app always opens on the day view.',
   },
   {
+    target: '[data-tour="dates"]',
+    title: 'Move through time',
+    body: 'Previous and Next move one day — or one week — at a time, and Today brings you straight back. The small date picker next to the date jumps to any day you choose.',
+  },
+  {
+    target: '[data-tour="clinics"]',
+    title: 'Your clinics at a glance',
+    body: 'Every clinic has a colour, and hovering a chip shows its opening hours. Tap a chip to show only that clinic — tap it again to see everything.',
+  },
+  {
     target: '[data-tour="filters"]',
     title: 'Filter the schedule',
-    body: 'Show only certain sonographers or clinics. With nothing selected, everything is shown.',
+    body: 'Show only certain sonographers or clinics. With nothing selected, everything is shown — and the clinic chips stay in sync with what you pick here.',
   },
   {
     target: 'section[aria-label*="schedule"]',
     title: 'Book, edit, and drag',
-    body: 'Click an empty slot to book, click an appointment to edit it, and drag a card to reschedule — to another time, another sonographer, or (in the week view) another day.',
+    body: 'Click an empty slot to book, click an appointment to edit, print or rebook it, and drag a card to reschedule — to another time, another sonographer, or (in the week view) another day.',
+  },
+  {
+    target: 'section[aria-label*="schedule"]',
+    title: 'Always oriented',
+    body: "The red line marks right now, and the grid opens scrolled to it. Appointments that already ended fade back, and each column header shows the sonographer's avatar and credentials.",
   },
   {
     target: '[data-tour="new"]',
     title: 'New appointment',
-    body: 'Prefer a form? Start a new appointment here and pick the patient, study type, time and clinic.',
+    body: 'Prefer a form? Start a new appointment here and pick the patient — their phone number fills in automatically — plus the study type, time and clinic.',
   },
   {
     target: '[data-tour="manage"]',
     title: 'Manage your hospital',
-    body: 'Add or edit clinics, sonographers, patients and study types in the Manage panel — the schedule updates right away.',
+    body: 'Add or edit clinics (colours, hours, holiday policy), sonographers and their credentials, patients and study types — the schedule updates right away.',
   },
   {
     target: '[data-tour="reports"]',
@@ -79,7 +94,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     title: "You're all set 🎉",
-    body: 'That’s the tour. Reopen it anytime from the Tutorial button. Happy scheduling!',
+    body: 'That’s the tour. Reopen it anytime from the Tutorial button — and see “Learn more” for where the product is headed. Happy scheduling!',
   },
 ];
 
@@ -310,7 +325,11 @@ export function SchedulePage() {
             </button>
           </div>
 
-          <nav className="toolbar__nav" aria-label={view === 'week' ? 'Change week' : 'Change day'}>
+          <nav
+            className="toolbar__nav"
+            data-tour="dates"
+            aria-label={view === 'week' ? 'Change week' : 'Change day'}
+          >
             <button type="button" onClick={() => shiftDays(-step)}>
               ← Previous
             </button>
@@ -351,7 +370,7 @@ export function SchedulePage() {
       </header>
 
       {clinics.data && (
-        <div className="legend-row">
+        <div className="legend-row" data-tour="clinics">
           <span className="legend-row__label">Clinics</span>
           {/* Every clinic is always visible as a colour-tinted chip; clicking one
               filters the schedule to it (in sync with the Filters panel). */}
